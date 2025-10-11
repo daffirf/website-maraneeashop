@@ -1,0 +1,160 @@
+<%- include('../layout', { title: 'Order History - Maraneea Shop' }) %>
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Order History</h1>
+      <p class="mt-2 text-gray-600">View all your past orders</p>
+    </div>
+
+    <!-- Orders List -->
+    <div class="bg-white rounded-lg shadow-sm">
+      <% if (orders.length > 0) { %>
+        <div class="divide-y divide-gray-200">
+          <% orders.forEach(order => { %>
+            <div class="p-6">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-4">
+                    <div>
+                      <h3 class="text-lg font-medium text-gray-900">
+                        Order #<%= order._id.toString().slice(-8) %>
+                      </h3>
+                      <p class="text-sm text-gray-500">
+                        Placed on <%= new Date(order.createdAt).toLocaleDateString('id-ID', { 
+                          weekday: 'long', 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        }) %>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-4">
+                    <div class="flex items-center space-x-6">
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">Total Amount</p>
+                        <p class="text-lg font-semibold text-gray-900">Rp <%= order.total.toLocaleString() %></p>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">Status</p>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                          <%= order.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                              order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : 
+                              order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : 
+                              'bg-gray-100 text-gray-800' %>">
+                          <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                        </span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">Payment Method</p>
+                        <p class="text-sm text-gray-600"><%= order.paymentMethod || 'Not specified' %></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Items (<%= order.items.length %>)</h4>
+                    <div class="space-y-2">
+                      <% order.items.slice(0, 3).forEach(item => { %>
+                        <div class="flex items-center space-x-3">
+                          <div class="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center">
+                            <span class="text-xs text-gray-500">IMG</span>
+                          </div>
+                          <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900"><%= item.product.name %></p>
+                            <p class="text-xs text-gray-500">Qty: <%= item.quantity %> × Rp <%= item.price.toLocaleString() %></p>
+                          </div>
+                        </div>
+                      <% }) %>
+                      <% if (order.items.length > 3) { %>
+                        <p class="text-xs text-gray-500">... and <%= order.items.length - 3 %> more items</p>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="ml-6">
+                  <a href="/profile/orders/<%= order._id %>" 
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  Previous
+                </a>
+              <% } %>
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  Next
+                </a>
+              <% } %>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700">
+                  Showing page <span class="font-medium"><%= currentPage %></span> of <span class="font-medium"><%= totalPages %></span>
+                </p>
+              </div>
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  <% if (currentPage > 1) { %>
+                    <a href="?page=<%= currentPage - 1 %>" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      Previous
+                    </a>
+                  <% } %>
+                  
+                  <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                    <a href="?page=<%= i %>" 
+                      class="relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                        <%= i === currentPage ? 'z-10 bg-pink-50 border-pink-500 text-pink-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' %>">
+                      <%= i %>
+                    </a>
+                  <% } %>
+                  
+                  <% if (currentPage < totalPages) { %>
+                    <a href="?page=<%= currentPage + 1 %>" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      Next
+                    </a>
+                  <% } %>
+                </nav>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="text-center py-12">
+          <div class="mx-auto h-24 w-24 text-gray-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No orders</h3>
+          <p class="mt-1 text-sm text-gray-500">Get started by placing your first order.</p>
+          <div class="mt-6">
+            <a href="/products" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+              Start Shopping
+            </a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../layout') %>
+
+
+

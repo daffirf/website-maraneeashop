@@ -1,0 +1,430 @@
+<%- include('../layout', { 
+    title: title,
+    currentPage: 'admin',
+    additionalCSS: ['/css/admin.css']
+}) %>
+
+<!-- Admin Sidebar -->
+<div class="flex min-h-screen bg-gray-100">
+    <div class="admin-sidebar w-64 min-h-screen">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Maraneea Shop</h1>
+                    <p class="text-xs text-yellow-200">Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/products" class="flex items-center space-x-3 px-4 py-3 text-white bg-amber-600 rounded-lg">
+                    <i class="fas fa-box"></i>
+                    <span>Produk</span>
+                </a>
+                <a href="/admin/orders" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Pesanan</span>
+                </a>
+                <a href="/admin/users" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-users"></i>
+                    <span>Pengguna</span>
+                </a>
+                <a href="/admin/database" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-database"></i>
+                    <span>Database</span>
+                </a>
+                <a href="/admin/analytics" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analitik</span>
+                </a>
+                <a href="/admin/settings" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 admin-content">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">
+                        <%= isEdit ? 'Edit Produk' : 'Tambah Produk Baru' %>
+                    </h1>
+                    <p class="text-gray-600">
+                        <%= isEdit ? 'Perbarui informasi produk' : 'Tambahkan produk baru ke katalog' %>
+                    </p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="/admin/products" class="btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Kembali
+                    </a>
+                    <button onclick="saveProduct()" class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Simpan Produk
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Form -->
+        <div class="p-6">
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Main Form -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Basic Information -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Dasar</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="form-label">Nama Produk *</label>
+                                    <input type="text" 
+                                           name="name" 
+                                           value="<%= product ? product.name : '' %>"
+                                           class="form-input" 
+                                           required>
+                                </div>
+                                <div>
+                                    <label class="form-label">Kategori *</label>
+                                    <select name="category" class="form-input" required>
+                                        <option value="">Pilih Kategori</option>
+                                        <option value="baju-muslimah" <%= product && product.category === 'baju-muslimah' ? 'selected' : '' %>>Baju Muslimah</option>
+                                        <option value="hampers" <%= product && product.category === 'hampers' ? 'selected' : '' %>>Hampers</option>
+                                        <option value="kue" <%= product && product.category === 'kue' ? 'selected' : '' %>>Kue</option>
+                                        <option value="aksesoris" <%= product && product.category === 'aksesoris' ? 'selected' : '' %>>Aksesoris</option>
+                                        <option value="ramadhan" <%= product && product.category === 'ramadhan' ? 'selected' : '' %>>Ramadhan</option>
+                                        <option value="lainnya" <%= product && product.category === 'lainnya' ? 'selected' : '' %>>Lainnya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Subkategori</label>
+                                    <input type="text" 
+                                           name="subcategory" 
+                                           value="<%= product ? product.subcategory : '' %>"
+                                           class="form-input" 
+                                           placeholder="Contoh: Gamis, Kemeja, dll">
+                                </div>
+                                <div>
+                                    <label class="form-label">Harga *</label>
+                                    <input type="number" 
+                                           name="price" 
+                                           value="<%= product ? product.price : '' %>"
+                                           class="form-input" 
+                                           required>
+                                </div>
+                                <div>
+                                    <label class="form-label">Harga Asli</label>
+                                    <input type="number" 
+                                           name="originalPrice" 
+                                           value="<%= product ? product.originalPrice : '' %>"
+                                           class="form-input" 
+                                           placeholder="Harga sebelum diskon">
+                                </div>
+                                <div>
+                                    <label class="form-label">Stok *</label>
+                                    <input type="number" 
+                                           name="stock" 
+                                           value="<%= product ? product.stock : '' %>"
+                                           class="form-input" 
+                                           required>
+                                </div>
+                                <div>
+                                    <label class="form-label">Berat (gram)</label>
+                                    <input type="number" 
+                                           name="weight" 
+                                           value="<%= product ? product.weight : '' %>"
+                                           class="form-input" 
+                                           placeholder="Berat produk">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Deskripsi Produk</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="form-label">Deskripsi Singkat</label>
+                                    <textarea name="shortDescription" 
+                                              rows="3" 
+                                              class="form-textarea" 
+                                              placeholder="Deskripsi singkat untuk tampilan produk"><%= product ? product.shortDescription : '' %></textarea>
+                                </div>
+                                <div>
+                                    <label class="form-label">Deskripsi Lengkap *</label>
+                                    <textarea name="description" 
+                                              rows="6" 
+                                              class="form-textarea" 
+                                              required 
+                                              placeholder="Deskripsi lengkap produk"><%= product ? product.description : '' %></textarea>
+                                </div>
+                                <div>
+                                    <label class="form-label">Tags</label>
+                                    <input type="text" 
+                                           name="tags" 
+                                           value="<%= product ? product.tags.join(', ') : '' %>"
+                                           class="form-input" 
+                                           placeholder="Pisahkan dengan koma (contoh: muslimah, gamis, cantik)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Images -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Gambar Produk</h3>
+                            <div class="space-y-4">
+                                <div class="image-upload" onclick="document.getElementById('imageInput').click()">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-600">Klik untuk upload gambar</p>
+                                    <p class="text-sm text-gray-500">Maksimal 5 gambar, format JPG/PNG/WebP</p>
+                                </div>
+                                <input type="file" 
+                                       id="imageInput" 
+                                       name="images" 
+                                       multiple 
+                                       accept="image/*" 
+                                       class="hidden" 
+                                       onchange="previewImages(this)">
+                                
+                                <div id="imagePreview" class="image-preview">
+                                    <% if (product && product.images) { %>
+                                        <% product.images.forEach((image, index) => { %>
+                                            <div class="image-preview-item">
+                                                <img src="<%= image.url %>" alt="<%= image.alt %>">
+                                                <button type="button" class="remove-btn" onclick="removeImage(this)">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        <% }); %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Status & Features -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Status & Fitur</h3>
+                            <div class="space-y-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="isActive" 
+                                           <%= product && product.isActive ? 'checked' : '' %>
+                                           class="form-checkbox">
+                                    <span class="ml-2">Produk Aktif</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="isFeatured" 
+                                           <%= product && product.isFeatured ? 'checked' : '' %>
+                                           class="form-checkbox">
+                                    <span class="ml-2">Produk Unggulan</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="isNew" 
+                                           <%= product && product.isNew ? 'checked' : '' %>
+                                           class="form-checkbox">
+                                    <span class="ml-2">Produk Baru</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="isOnSale" 
+                                           <%= product && product.isOnSale ? 'checked' : '' %>
+                                           class="form-checkbox">
+                                    <span class="ml-2">Sedang Diskon</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Discount Settings -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Diskon</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="form-label">Persentase Diskon (%)</label>
+                                    <input type="number" 
+                                           name="discountPercentage" 
+                                           value="<%= product ? product.discountPercentage : '' %>"
+                                           class="form-input" 
+                                           min="0" 
+                                           max="100" 
+                                           step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SEO Settings -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">SEO</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="form-label">Slug URL</label>
+                                    <input type="text" 
+                                           name="slug" 
+                                           value="<%= product ? product.seo.slug : '' %>"
+                                           class="form-input" 
+                                           placeholder="url-friendly-slug">
+                                </div>
+                                <div>
+                                    <label class="form-label">Meta Title</label>
+                                    <input type="text" 
+                                           name="metaTitle" 
+                                           value="<%= product ? product.seo.metaTitle : '' %>"
+                                           class="form-input" 
+                                           placeholder="Title untuk SEO">
+                                </div>
+                                <div>
+                                    <label class="form-label">Meta Description</label>
+                                    <textarea name="metaDescription" 
+                                              rows="3" 
+                                              class="form-textarea" 
+                                              placeholder="Deskripsi untuk SEO"><%= product ? product.seo.metaDescription : '' %></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product ID (for edit) -->
+                        <% if (isEdit && product) { %>
+                            <input type="hidden" name="productId" value="<%= product._id %>">
+                        <% } %>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview uploaded images
+function previewImages(input) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    
+    if (input.files) {
+        Array.from(input.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-preview-item';
+                imageItem.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${index + 1}">
+                    <button type="button" class="remove-btn" onclick="removeImage(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                preview.appendChild(imageItem);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+// Remove image
+function removeImage(button) {
+    button.parentElement.remove();
+}
+
+// Save product
+async function saveProduct() {
+    const form = document.getElementById('productForm');
+    const formData = new FormData(form);
+    
+    // Add product ID if editing
+    <% if (isEdit && product) { %>
+        formData.append('productId', '<%= product._id %>');
+    <% } %>
+    
+    try {
+        const response = await fetch('/admin/products/save', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message, 'success');
+            setTimeout(() => {
+                window.location.href = '/admin/products';
+            }, 1000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showNotification('Terjadi kesalahan saat menyimpan produk', 'error');
+    }
+}
+
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+    
+    // Set colors based on type
+    const colors = {
+        success: 'bg-green-500 text-white',
+        error: 'bg-red-500 text-white',
+        warning: 'bg-yellow-500 text-white',
+        info: 'bg-blue-500 text-white'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    
+    // Add icon based on type
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icons[type] || icons.info} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+</script>

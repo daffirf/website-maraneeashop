@@ -1,0 +1,46 @@
+{
+  "name": "maraneea-shop",
+  "version": "1.0.0",
+  "description": "Website e-commerce Maraneea Shop - Baju Muslimah, Hampers, Kue, dan Produk Ramadhan",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npm run build:css",
+    "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/style.css --watch"
+  },
+  "keywords": [
+    "ecommerce",
+    "muslimah",
+    "hampers",
+    "ramadhan",
+    "lebaran"
+  ],
+  "author": "Maraneea Shop",
+  "license": "MIT",
+  "dependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "axios": "^1.5.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "connect-flash": "^0.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "express-session": "^1.17.3",
+    "helmet": "^7.0.0",
+    "mongoose": "^7.5.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.4",
+    "stripe": "^13.6.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.15",
+    "nodemon": "^3.0.1",
+    "postcss": "^8.4.29",
+    "tailwindcss": "^3.3.3"
+  }
+}

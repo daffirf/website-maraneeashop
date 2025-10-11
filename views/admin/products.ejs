@@ -1,0 +1,365 @@
+<%- include('../layout', { 
+    title: title,
+    currentPage: 'admin',
+    additionalCSS: ['/css/admin.css']
+}) %>
+
+<!-- Admin Sidebar -->
+<div class="flex min-h-screen bg-gray-100">
+    <div class="admin-sidebar w-64 min-h-screen">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Maraneea Shop</h1>
+                    <p class="text-xs text-yellow-200">Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/products" class="flex items-center space-x-3 px-4 py-3 text-white bg-amber-600 rounded-lg">
+                    <i class="fas fa-box"></i>
+                    <span>Produk</span>
+                </a>
+                <a href="/admin/orders" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Pesanan</span>
+                </a>
+                <a href="/admin/users" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-users"></i>
+                    <span>Pengguna</span>
+                </a>
+                <a href="/admin/analytics" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analitik</span>
+                </a>
+                <a href="/admin/settings" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 admin-content">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Manajemen Produk</h1>
+                    <p class="text-gray-600">Kelola produk dan inventori toko</p>
+                </div>
+                <a href="/admin/products/add" class="btn-primary">
+                    <i class="fas fa-plus mr-2"></i>
+                    Tambah Produk
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="p-6">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <form method="GET" class="flex flex-wrap gap-4 items-end">
+                    <!-- Search -->
+                    <div class="flex-1 min-w-64">
+                        <label class="form-label">Cari Produk</label>
+                        <input type="text" 
+                               name="search" 
+                               value="<%= filters.search || '' %>"
+                               placeholder="Nama produk atau deskripsi..."
+                               class="form-input">
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="min-w-48">
+                        <label class="form-label">Kategori</label>
+                        <select name="category" class="form-input">
+                            <option value="">Semua Kategori</option>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category %>" <%= filters.category === category ? 'selected' : '' %>>
+                                    <%= category.replace('-', ' ').toUpperCase() %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="min-w-48">
+                        <label class="form-label">Urutkan</label>
+                        <select name="sort" class="form-input">
+                            <option value="newest" <%= filters.sort === 'newest' ? 'selected' : '' %>>Terbaru</option>
+                            <option value="name" <%= filters.sort === 'name' ? 'selected' : '' %>>Nama A-Z</option>
+                            <option value="price-low" <%= filters.sort === 'price-low' ? 'selected' : '' %>>Harga Terendah</option>
+                            <option value="price-high" <%= filters.sort === 'price-high' ? 'selected' : '' %>>Harga Tertinggi</option>
+                            <option value="stock-low" <%= filters.sort === 'stock-low' ? 'selected' : '' %>>Stok Terendah</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter Button -->
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-search mr-2"></i>
+                        Filter
+                    </button>
+
+                    <!-- Clear Button -->
+                    <a href="/admin/products" class="btn-outline">
+                        <i class="fas fa-times mr-2"></i>
+                        Reset
+                    </a>
+                </form>
+            </div>
+
+            <!-- Products Table -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <% products.forEach(product => { %>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-12 w-12">
+                                                <img class="h-12 w-12 rounded-lg object-cover" 
+                                                     src="<%= product.images[0]?.url || '/images/placeholder-product.jpg' %>" 
+                                                     alt="<%= product.name %>">
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900"><%= product.name %></div>
+                                                <div class="text-sm text-gray-500">SKU: <%= product.sku %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                                        <%= product.category.replace('-', ' ') %>
+                                        <% if (product.subcategory) { %>
+                                            <br><span class="text-xs text-gray-400"><%= product.subcategory %></span>
+                                        <% } %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Rp <%= product.price.toLocaleString('id-ID') %>
+                                        </div>
+                                        <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                            <div class="text-sm text-gray-500 line-through">
+                                                Rp <%= product.originalPrice.toLocaleString('id-ID') %>
+                                            </div>
+                                        <% } %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= product.stock < 10 ? 'bg-red-100 text-red-800' : product.stock < 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+                                            <%= product.stock %> unit
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex flex-col space-y-1">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= product.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                                <%= product.isActive ? 'Aktif' : 'Nonaktif' %>
+                                            </span>
+                                            <% if (product.isFeatured) { %>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    Unggulan
+                                                </span>
+                                            <% } %>
+                                            <% if (product.isOnSale) { %>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    Diskon <%= product.discountPercentage %>%
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <a href="/products/<%= product.seo.slug %>" 
+                                               target="_blank"
+                                               class="text-blue-600 hover:text-blue-900"
+                                               title="Lihat Produk">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/admin/products/edit/<%= product._id %>" 
+                                               class="text-green-600 hover:text-green-900"
+                                               title="Edit Produk">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button onclick="deleteProduct('<%= product._id %>', '<%= product.name %>')" 
+                                                    class="text-red-600 hover:text-red-900"
+                                                    title="Hapus Produk">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <% if (pagination.totalPages > 1) { %>
+                    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <% if (pagination.hasPrev) { %>
+                                    <a href="?<%= new URLSearchParams({...filters, page: pagination.prevPage}) %>" 
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                        Previous
+                                    </a>
+                                <% } %>
+                                <% if (pagination.hasNext) { %>
+                                    <a href="?<%= new URLSearchParams({...filters, page: pagination.nextPage}) %>" 
+                                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                        Next
+                                    </a>
+                                <% } %>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Menampilkan halaman <span class="font-medium"><%= pagination.currentPage %></span> dari <span class="font-medium"><%= pagination.totalPages %></span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                        <% if (pagination.hasPrev) { %>
+                                            <a href="?<%= new URLSearchParams({...filters, page: pagination.prevPage}) %>" 
+                                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        <% } %>
+                                        
+                                        <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                                            <a href="?<%= new URLSearchParams({...filters, page: i}) %>" 
+                                               class="relative inline-flex items-center px-4 py-2 border text-sm font-medium <%= i === pagination.currentPage ? 'z-10 bg-amber-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' %>">
+                                                <%= i %>
+                                            </a>
+                                        <% } %>
+                                        
+                                        <% if (pagination.hasNext) { %>
+                                            <a href="?<%= new URLSearchParams({...filters, page: pagination.nextPage}) %>" 
+                                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        <% } %>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Delete product function
+async function deleteProduct(productId, productName) {
+    if (!confirm(`Apakah Anda yakin ingin menghapus produk "${productName}"?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        showNotification('Terjadi kesalahan. Silakan coba lagi.', 'error');
+    }
+}
+
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+    
+    // Set colors based on type
+    const colors = {
+        success: 'bg-green-500 text-white',
+        error: 'bg-red-500 text-white',
+        warning: 'bg-yellow-500 text-white',
+        info: 'bg-blue-500 text-white'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    
+    // Add icon based on type
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icons[type] || icons.info} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+</script>
+
+
+
+
+
+
+

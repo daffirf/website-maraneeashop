@@ -1,0 +1,195 @@
+<%- include('../partials/header', { 
+    title: 'Keranjang Belanja - Maraneea Shop',
+    description: 'Keranjang belanja Anda di Maraneea Shop',
+    currentPage: 'cart'
+}) %>
+
+<!-- Breadcrumb -->
+<section class="bg-neutral-100 dark:bg-neutral-800 py-6 mt-20">
+    <div class="container mx-auto px-4">
+        <nav class="flex items-center space-x-2 text-sm" data-aos="fade-right">
+            <a href="/" class="text-neutral-600 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-accent-400 transition-colors">
+                <i class="fas fa-home mr-1"></i>Beranda
+            </a>
+            <i class="fas fa-chevron-right text-neutral-400 text-xs"></i>
+            <span class="text-neutral-900 dark:text-white font-medium">Keranjang Belanja</span>
+        </nav>
+    </div>
+</section>
+
+<!-- Cart Section -->
+<section class="py-12 min-h-screen bg-white dark:bg-neutral-900">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-8" data-aos="fade-up">
+            <i class="fas fa-shopping-cart mr-3 text-primary-600 dark:text-accent-400"></i>
+            Keranjang <span class="text-gradient">Belanja</span>
+        </h1>
+
+        <% if (typeof cart !== 'undefined' && cart.items && cart.items.length > 0) { %>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Cart Items -->
+                <div class="lg:col-span-2 space-y-4">
+                    <% cart.items.forEach((item, index) => { %>
+                        <div class="card p-6 hover-lift" data-aos="fade-up" data-aos-delay="<%= index * 50 %>">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <!-- Product Image -->
+                                <div class="flex-shrink-0">
+                                    <img src="<%= item.product?.images?.[0]?.url || item.product?.image || '/images/placeholder-product.jpg' %>" 
+                                         alt="<%= item.product?.name || 'Product' %>" 
+                                         class="w-full md:w-32 h-32 object-cover rounded-xl">
+                                </div>
+
+                                <!-- Product Info -->
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-bold text-neutral-900 dark:text-white mb-2">
+                                        <a href="/products/<%= item.product?._id || item.product?.id %>" 
+                                           class="hover:text-primary-600 dark:hover:text-accent-400 transition-colors">
+                                            <%= item.product?.name || 'Produk' %>
+                                        </a>
+                                    </h3>
+
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-2xl font-bold text-primary-600 dark:text-accent-400">
+                                                Rp <%= new Intl.NumberFormat('id-ID').format(item.product?.price || 0) %>
+                                            </p>
+                                            <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                                                Subtotal: Rp <%= new Intl.NumberFormat('id-ID').format((item.product?.price || 0) * (item.quantity || 1)) %>
+                                            </p>
+                                        </div>
+
+                                        <!-- Quantity Controls -->
+                                        <div class="flex items-center gap-3">
+                                            <button onclick="updateCartQuantity('<%= item.product?._id || item.product?.id %>', -1)" 
+                                                    class="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-primary-100 dark:hover:bg-primary-900 flex items-center justify-center transition-colors">
+                                                <i class="fas fa-minus text-sm"></i>
+                                            </button>
+                                            <span class="text-lg font-semibold text-neutral-900 dark:text-white w-8 text-center">
+                                                <%= item.quantity || 1 %>
+                                            </span>
+                                            <button onclick="updateCartQuantity('<%= item.product?._id || item.product?.id %>', 1)" 
+                                                    class="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-primary-100 dark:hover:bg-primary-900 flex items-center justify-center transition-colors">
+                                                <i class="fas fa-plus text-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Remove Button -->
+                                    <button onclick="removeFromCart('<%= item.product?._id || item.product?.id %>')" 
+                                            class="mt-4 text-error-500 hover:text-error-600 text-sm font-medium transition-colors">
+                                        <i class="fas fa-trash mr-2"></i>
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="card p-6 sticky top-24" data-aos="fade-up">
+                        <h3 class="text-2xl font-bold text-neutral-900 dark:text-white mb-6">
+                            Ringkasan Pesanan
+                        </h3>
+
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between text-neutral-700 dark:text-neutral-300">
+                                <span>Subtotal (<%= cart.items.length %> item)</span>
+                                <span class="font-semibold">
+                                    Rp <%= new Intl.NumberFormat('id-ID').format(cart.items.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 1), 0)) %>
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-neutral-700 dark:text-neutral-300">
+                                <span>Ongkos Kirim</span>
+                                <span class="font-semibold">Gratis</span>
+                            </div>
+                            <div class="border-t border-neutral-200 dark:border-neutral-700 pt-4">
+                                <div class="flex justify-between text-xl font-bold text-neutral-900 dark:text-white">
+                                    <span>Total</span>
+                                    <span class="text-primary-600 dark:text-accent-400">
+                                        Rp <%= new Intl.NumberFormat('id-ID').format(cart.items.reduce((sum, item) => sum + (item.product?.price || 0) * (item.quantity || 1), 0)) %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="/orders/checkout" class="btn-primary w-full btn-lg">
+                            <i class="fas fa-credit-card mr-2"></i>
+                            Lanjut ke Checkout
+                        </a>
+
+                        <a href="/products" class="btn-outline w-full btn-sm mt-3">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Lanjut Belanja
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        <% } else { %>
+            <!-- Empty Cart -->
+            <div class="text-center py-20" data-aos="fade-up">
+                <div class="w-40 h-40 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <i class="fas fa-shopping-cart text-8xl text-neutral-400 dark:text-neutral-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-neutral-900 dark:text-white mb-4">
+                    Keranjang Belanja Kosong
+                </h2>
+                <p class="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md mx-auto">
+                    Yuk, mulai belanja dan tambahkan produk favorit Anda ke keranjang!
+                </p>
+                <a href="/products" class="btn-primary btn-lg">
+                    <i class="fas fa-shopping-bag mr-2"></i>
+                    Mulai Belanja
+                </a>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<script>
+    async function updateCartQuantity(productId, change) {
+        try {
+            const response = await fetch('/cart/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, change })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                showToast(result.message || 'Gagal mengupdate keranjang', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Terjadi kesalahan', 'error');
+        }
+    }
+
+    async function removeFromCart(productId) {
+        if (!confirm('Hapus produk dari keranjang?')) return;
+        
+        try {
+            const response = await fetch('/cart/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                showToast(result.message || 'Gagal menghapus produk', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Terjadi kesalahan', 'error');
+        }
+    }
+</script>
+
+<%- include('../partials/footer') %>

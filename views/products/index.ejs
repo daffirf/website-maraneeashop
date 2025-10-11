@@ -1,0 +1,370 @@
+<%- include('../partials/header', { 
+    title: title || 'Semua Produk - Maraneea Shop',
+    description: description || 'Temukan berbagai produk berkualitas: baju muslimah, hampers, kue, dan produk Ramadhan terbaik',
+    currentPage: 'products'
+}) %>
+
+<!-- Breadcrumb Section -->
+<section class="bg-neutral-100 dark:bg-neutral-800 py-6 mt-20">
+    <div class="container mx-auto px-4">
+        <nav class="flex items-center space-x-2 text-sm" data-aos="fade-right">
+            <a href="/" class="text-neutral-600 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-accent-400 transition-colors">
+                <i class="fas fa-home mr-1"></i>Beranda
+            </a>
+            <i class="fas fa-chevron-right text-neutral-400 text-xs"></i>
+            <span class="text-neutral-900 dark:text-white font-medium">Produk</span>
+            <% if (typeof filters !== 'undefined' && filters.category) { %>
+                <i class="fas fa-chevron-right text-neutral-400 text-xs"></i>
+                <span class="text-neutral-900 dark:text-white font-medium capitalize"><%= filters.category.replace(/-/g, ' ') %></span>
+            <% } %>
+        </nav>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section class="py-12 min-h-screen bg-white dark:bg-neutral-900">
+    <div class="container mx-auto px-4">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10" data-aos="fade-up">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-3">
+                    <span class="text-gradient">Koleksi</span> Produk
+                </h1>
+                <p class="text-neutral-600 dark:text-neutral-400">
+                    <%= typeof products !== 'undefined' ? products.length : 0 %> produk ditemukan
+                </p>
+            </div>
+            
+            <!-- Mobile Filter Toggle -->
+            <button onclick="toggleFilters()" 
+                    class="lg:hidden mt-4 btn-primary btn-sm">
+                <i class="fas fa-filter mr-2"></i>
+                Filter Produk
+            </button>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Filters -->
+            <aside id="filterSidebar" 
+                   class="lg:w-80 fixed lg:sticky top-20 left-0 w-full h-screen lg:h-auto bg-white dark:bg-neutral-900 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto lg:overflow-visible p-6 lg:p-0">
+                
+                <!-- Close Button (Mobile) -->
+                <button onclick="toggleFilters()" 
+                        class="lg:hidden absolute top-4 right-4 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+
+                <div class="space-y-6">
+                    <!-- Search Box -->
+                    <div class="card p-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-neutral-900 dark:text-white">
+                                <i class="fas fa-search mr-2 text-primary-600 dark:text-accent-400"></i>
+                                Cari Produk
+                            </h3>
+                        </div>
+                        <input type="text" 
+                               id="searchInput"
+                               value="<%= typeof filters !== 'undefined' && filters.search ? filters.search : '' %>"
+                               placeholder="Ketik kata kunci..."
+                               class="form-input"
+                               onkeypress="handleSearchKeypress(event)">
+                    </div>
+
+                    <!-- Categories Filter -->
+                    <div class="card p-6" data-aos="fade-up" data-aos-delay="200">
+                        <h3 class="text-lg font-bold text-neutral-900 dark:text-white mb-4">
+                            <i class="fas fa-th-large mr-2 text-primary-600 dark:text-accent-400"></i>
+                            Kategori
+                        </h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors group">
+                                <input type="radio" name="category" value="" 
+                                       <%= typeof filters === 'undefined' || !filters.category ? 'checked' : '' %>
+                                       class="mr-3 text-primary-600 focus:ring-primary-500" 
+                                       onchange="applyFilters()">
+                                <span class="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-primary-600 dark:group-hover:text-accent-400 font-medium">
+                                    Semua Kategori
+                                </span>
+                            </label>
+                            <% const categories = ['baju-muslimah', 'hampers', 'kue', 'ramadhan-lebaran', 'aksesoris', 'lainnya']; %>
+                            <% categories.forEach(category => { %>
+                                <label class="flex items-center p-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors group">
+                                    <input type="radio" name="category" value="<%= category %>"
+                                           <%= typeof filters !== 'undefined' && filters.category === category ? 'checked' : '' %>
+                                           class="mr-3 text-primary-600 focus:ring-primary-500" 
+                                           onchange="applyFilters()">
+                                    <span class="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-primary-600 dark:group-hover:text-accent-400 font-medium capitalize">
+                                        <%= category.replace(/-/g, ' ') %>
+                                    </span>
+                                </label>
+                            <% }); %>
+                        </div>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="card p-6" data-aos="fade-up" data-aos-delay="300">
+                        <h3 class="text-lg font-bold text-neutral-900 dark:text-white mb-4">
+                            <i class="fas fa-tag mr-2 text-primary-600 dark:text-accent-400"></i>
+                            Rentang Harga
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm text-neutral-600 dark:text-neutral-400 mb-1">Harga Minimum</label>
+                                <input type="number" 
+                                       name="minPrice" 
+                                       placeholder="Rp 0"
+                                       value="<%= typeof filters !== 'undefined' && filters.minPrice ? filters.minPrice : '' %>"
+                                       class="form-input"
+                                       onchange="applyFilters()">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-neutral-600 dark:text-neutral-400 mb-1">Harga Maksimum</label>
+                                <input type="number" 
+                                       name="maxPrice" 
+                                       placeholder="Rp 999.999.999"
+                                       value="<%= typeof filters !== 'undefined' && filters.maxPrice ? filters.maxPrice : '' %>"
+                                       class="form-input"
+                                       onchange="applyFilters()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sort Filter -->
+                    <div class="card p-6" data-aos="fade-up" data-aos-delay="400">
+                        <h3 class="text-lg font-bold text-neutral-900 dark:text-white mb-4">
+                            <i class="fas fa-sort mr-2 text-primary-600 dark:text-accent-400"></i>
+                            Urutkan
+                        </h3>
+                        <select name="sort" 
+                                class="form-input"
+                                onchange="applyFilters()">
+                            <option value="">Pilih Urutan</option>
+                            <option value="newest" <%= typeof filters !== 'undefined' && filters.sort === 'newest' ? 'selected' : '' %>>Terbaru</option>
+                            <option value="price-low" <%= typeof filters !== 'undefined' && filters.sort === 'price-low' ? 'selected' : '' %>>Harga Terendah</option>
+                            <option value="price-high" <%= typeof filters !== 'undefined' && filters.sort === 'price-high' ? 'selected' : '' %>>Harga Tertinggi</option>
+                            <option value="popular" <%= typeof filters !== 'undefined' && filters.sort === 'popular' ? 'selected' : '' %>>Terpopuler</option>
+                            <option value="rating" <%= typeof filters !== 'undefined' && filters.sort === 'rating' ? 'selected' : '' %>>Rating Tertinggi</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset Filters -->
+                    <button onclick="resetFilters()" 
+                            class="w-full btn-outline">
+                        <i class="fas fa-redo mr-2"></i>
+                        Reset Filter
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Filter Overlay (Mobile) -->
+            <div id="filterOverlay" 
+                 class="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30 opacity-0 invisible transition-all duration-300"
+                 onclick="toggleFilters()"></div>
+
+            <!-- Products Grid -->
+            <div class="flex-1">
+                <% if (typeof products !== 'undefined' && products.length > 0) { %>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% products.forEach((product, index) => { %>
+                            <div class="product-card" 
+                                 data-aos="fade-up" 
+                                 data-aos-delay="<%= (index % 9) * 100 %>">
+                                <div class="relative overflow-hidden">
+                                    <a href="/products/<%= product._id || product.id %>">
+                                        <img src="<%= product.image || product.images?.[0] || '/images/placeholder-product.jpg' %>" 
+                                             alt="<%= product.name %>" 
+                                             class="product-image">
+                                    </a>
+                                    
+                                    <!-- Badges -->
+                                    <div class="absolute top-3 left-3 flex flex-col gap-2">
+                                        <% if (product.isNew) { %>
+                                            <span class="badge-new">Baru</span>
+                                        <% } %>
+                                        <% if (product.discount > 0) { %>
+                                            <span class="badge-sale"><%= product.discount %>% OFF</span>
+                                        <% } %>
+                                        <% if (product.isFeatured) { %>
+                                            <span class="badge-featured">Unggulan</span>
+                                        <% } %>
+                                    </div>
+
+                                    <!-- Wishlist Button -->
+                                    <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <button class="w-10 h-10 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-medium hover:scale-110 transition-transform duration-300"
+                                                data-wishlist="<%= product._id || product.id %>">
+                                            <i class="far fa-heart text-neutral-600 dark:text-neutral-400 hover:text-error-500 transition-colors"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Quick View -->
+                                    <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <a href="/products/<%= product._id || product.id %>" 
+                                           class="btn btn-sm bg-white text-neutral-900 hover:bg-accent-100 transform hover:scale-105 transition-all">
+                                            <i class="fas fa-eye mr-2"></i>
+                                            Lihat Detail
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
+                                    <a href="/products/<%= product._id || product.id %>">
+                                        <h3 class="product-title"><%= product.name %></h3>
+                                    </a>
+                                    
+                                    <!-- Rating -->
+                                    <div class="flex items-center mb-3">
+                                        <div class="flex text-accent-400">
+                                            <% const rating = product.rating || 4.5; %>
+                                            <% for(let i = 1; i <= 5; i++) { %>
+                                                <i class="fas fa-star text-sm <%= i <= Math.floor(rating) ? '' : 'opacity-30' %>"></i>
+                                            <% } %>
+                                        </div>
+                                        <span class="text-sm text-neutral-500 dark:text-neutral-400 ml-2">
+                                            (<%= product.reviews?.length || 0 %>)
+                                        </span>
+                                    </div>
+
+                                    <!-- Price -->
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <span class="product-price">
+                                                Rp <%= new Intl.NumberFormat('id-ID').format(product.price) %>
+                                            </span>
+                                            <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                                <span class="product-original-price ml-2">
+                                                    Rp <%= new Intl.NumberFormat('id-ID').format(product.originalPrice) %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add to Cart Button -->
+                                    <button class="w-full btn-primary btn-sm"
+                                            data-add-to-cart="<%= product._id || product.id %>"
+                                            data-quantity="1">
+                                        <i class="fas fa-shopping-cart mr-2"></i>
+                                        Tambah ke Keranjang
+                                    </button>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+
+                    <!-- Pagination -->
+                    <% if (typeof pagination !== 'undefined' && pagination.totalPages > 1) { %>
+                        <div class="mt-12 flex justify-center" data-aos="fade-up">
+                            <nav class="flex items-center gap-2">
+                                <!-- Previous Button -->
+                                <% if (pagination.currentPage > 1) { %>
+                                    <a href="?page=<%= pagination.currentPage - 1 %><%= buildQueryString() %>" 
+                                       class="btn btn-sm btn-outline">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                <% } %>
+
+                                <!-- Page Numbers -->
+                                <% for(let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                                    <a href="?page=<%= i %><%= buildQueryString() %>" 
+                                       class="btn btn-sm <%= i === pagination.currentPage ? 'btn-primary' : 'btn-outline' %>">
+                                        <%= i %>
+                                    </a>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <% if (pagination.currentPage < pagination.totalPages) { %>
+                                    <a href="?page=<%= pagination.currentPage + 1 %><%= buildQueryString() %>" 
+                                       class="btn btn-sm btn-outline">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                <% } %>
+                            </nav>
+                        </div>
+                    <% } %>
+
+                <% } else { %>
+                    <!-- Empty State -->
+                    <div class="text-center py-20" data-aos="fade-up">
+                        <div class="w-32 h-32 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-shopping-bag text-6xl text-neutral-400 dark:text-neutral-600"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-neutral-900 dark:text-white mb-3">
+                            Produk Tidak Ditemukan
+                        </h3>
+                        <p class="text-neutral-600 dark:text-neutral-400 mb-6">
+                            Maaf, tidak ada produk yang sesuai dengan filter Anda.
+                        </p>
+                        <button onclick="resetFilters()" class="btn-primary">
+                            <i class="fas fa-redo mr-2"></i>
+                            Reset Filter
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript -->
+<script>
+    // Toggle filter sidebar (mobile)
+    function toggleFilters() {
+        const sidebar = document.getElementById('filterSidebar');
+        const overlay = document.getElementById('filterOverlay');
+        
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('opacity-0');
+        overlay.classList.toggle('invisible');
+        
+        // Prevent body scroll when filters open
+        document.body.classList.toggle('overflow-hidden');
+    }
+
+    // Apply filters
+    function applyFilters() {
+        const category = document.querySelector('input[name="category"]:checked')?.value || '';
+        const minPrice = document.querySelector('input[name="minPrice"]')?.value || '';
+        const maxPrice = document.querySelector('input[name="maxPrice"]')?.value || '';
+        const sort = document.querySelector('select[name="sort"]')?.value || '';
+        const search = document.querySelector('#searchInput')?.value || '';
+
+        const params = new URLSearchParams();
+        if (category) params.append('category', category);
+        if (minPrice) params.append('minPrice', minPrice);
+        if (maxPrice) params.append('maxPrice', maxPrice);
+        if (sort) params.append('sort', sort);
+        if (search) params.append('search', search);
+
+        window.location.href = '/products?' + params.toString();
+    }
+
+    // Reset filters
+    function resetFilters() {
+        window.location.href = '/products';
+    }
+
+    // Handle search keypress
+    function handleSearchKeypress(event) {
+        if (event.key === 'Enter') {
+            applyFilters();
+        }
+    }
+
+    // Build query string for pagination
+    <% 
+    function buildQueryString() {
+        const params = [];
+        if (typeof filters !== 'undefined') {
+            if (filters.category) params.push('category=' + filters.category);
+            if (filters.minPrice) params.push('minPrice=' + filters.minPrice);
+            if (filters.maxPrice) params.push('maxPrice=' + filters.maxPrice);
+            if (filters.sort) params.push('sort=' + filters.sort);
+            if (filters.search) params.push('search=' + encodeURIComponent(filters.search));
+        }
+        return params.length > 0 ? '&' + params.join('&') : '';
+    }
+    %>
+</script>
+
+<%- include('../partials/footer') %>

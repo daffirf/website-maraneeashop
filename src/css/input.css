@@ -1,0 +1,408 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   Maraneea Shop - Modern E-commerce Styling
+   ============================================ */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ============================================
+   CSS Variables
+   ============================================ */
+:root {
+  /* Primary Colors */
+  --primary-50: #FAF8F6;
+  --primary-100: #F4EDE5;
+  --primary-500: #8B5A2B;
+  --primary-600: #7A4F26;
+  --primary-700: #694421;
+  
+  /* Accent Colors */
+  --accent-400: #FBBF24;
+  --accent-500: #D4AF37;
+  --accent-600: #B59F2F;
+  
+  /* Neutral Colors */
+  --neutral-50: #FAFAFA;
+  --neutral-100: #F5F5F5;
+  --neutral-500: #737373;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  
+  /* Semantic Colors */
+  --success: #10B981;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --info: #3B82F6;
+  
+  /* Shadows */
+  --shadow-soft: 0 2px 15px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 25px rgba(0, 0, 0, 0.12);
+  --shadow-strong: 0 10px 40px rgba(0, 0, 0, 0.15);
+  --shadow-luxury: 0 20px 60px rgba(139, 90, 43, 0.15);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* Dark Mode Variables */
+.dark {
+  --bg-primary: #171717;
+  --bg-secondary: #262626;
+  --text-primary: #FAFAFA;
+  --text-secondary: #D4D4D4;
+  --border-color: #404040;
+}
+
+/* ============================================
+   Base Layer Customizations
+   ============================================ */
+@layer base {
+  * {
+    @apply antialiased;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+}
+
+body {
+    @apply font-poppins bg-neutral-50 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-grotesk font-bold;
+  }
+  
+  /* Selection Colors */
+  ::selection {
+    @apply bg-accent-500 text-white;
+  }
+  
+  ::-moz-selection {
+    @apply bg-accent-500 text-white;
+  }
+}
+
+/* ============================================
+   Component Layer - Reusable Components
+   ============================================ */
+@layer components {
+  
+  /* ========== Buttons ========== */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+.btn-primary {
+    @apply btn bg-gradient-to-r from-primary-500 to-accent-600 text-white hover:from-primary-600 hover:to-accent-700 shadow-medium hover:shadow-luxury transform hover:-translate-y-0.5 focus:ring-primary-500;
+}
+
+.btn-secondary {
+    @apply btn border-2 border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white dark:border-accent-500 dark:text-accent-400 dark:hover:bg-accent-500 dark:hover:text-white;
+  }
+  
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600 shadow-medium hover:shadow-strong focus:ring-accent-400;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-neutral-300 text-neutral-700 hover:border-primary-500 hover:text-primary-600 dark:border-neutral-600 dark:text-neutral-300;
+  }
+  
+  .btn-ghost {
+    @apply btn text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800;
+  }
+  
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .btn-lg {
+    @apply px-8 py-4 text-lg;
+  }
+  
+  /* ========== Cards ========== */
+  .card {
+    @apply bg-white dark:bg-neutral-800 rounded-2xl shadow-soft hover:shadow-medium transition-shadow duration-300;
+  }
+  
+  .card-luxury {
+    @apply card shadow-luxury hover:shadow-strong backdrop-blur-sm;
+  }
+  
+  .product-card {
+    @apply card overflow-hidden cursor-pointer transform transition-all duration-300 hover:-translate-y-2;
+  }
+  
+  .product-image {
+    @apply w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110;
+  }
+  
+  .product-title {
+    @apply text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors;
+  }
+  
+  .product-price {
+    @apply text-2xl font-bold text-primary-600 dark:text-accent-400;
+  }
+  
+  .product-original-price {
+    @apply text-sm text-neutral-500 line-through;
+  }
+  
+  /* ========== Badges ========== */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  }
+  
+  .badge-new {
+    @apply badge bg-success-500 text-white;
+  }
+  
+  .badge-sale {
+    @apply badge bg-error-500 text-white animate-pulse;
+  }
+  
+  .badge-featured {
+    @apply badge bg-gradient-to-r from-accent-400 to-accent-600 text-white;
+  }
+  
+  .badge-trending {
+    @apply badge bg-gradient-to-r from-pink-500 to-purple-600 text-white;
+  }
+  
+  /* ========== Navigation ========== */
+  .navbar {
+    @apply fixed top-0 left-0 right-0 z-50 transition-all duration-300;
+  }
+  
+  .navbar-scrolled {
+    @apply bg-white/95 dark:bg-neutral-900/95 backdrop-blur-lg shadow-medium;
+}
+
+.nav-link {
+    @apply relative px-4 py-2 font-medium text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-accent-400 transition-colors duration-300;
+  }
+  
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 dark:bg-accent-400 transition-all duration-300;
+  }
+  
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply w-full;
+  }
+  
+  /* ========== Header/Hero ========== */
+  .header {
+    @apply bg-gradient-to-r from-primary-500 via-primary-600 to-accent-600 shadow-luxury;
+  }
+  
+  .hero {
+    @apply relative min-h-screen flex items-center justify-center overflow-hidden;
+    background: linear-gradient(135deg, rgba(139, 90, 43, 0.95) 0%, rgba(166, 124, 82, 0.9) 50%, rgba(212, 175, 55, 0.85) 100%);
+  }
+  
+  .hero::before {
+    content: '';
+    @apply absolute inset-0 opacity-10;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  /* ========== Footer ========== */
+.footer {
+    @apply bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-neutral-100;
+}
+
+.footer-link {
+    @apply text-neutral-300 hover:text-accent-400 transition-colors duration-300;
+  }
+  
+  /* ========== Category Cards ========== */
+  .category-card {
+    @apply card cursor-pointer text-center p-6 transform hover:scale-105 transition-all duration-300;
+  }
+  
+  .category-icon {
+    @apply w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900 dark:to-accent-900 text-3xl text-primary-600 dark:text-accent-400 group-hover:scale-110 transition-transform duration-300;
+  }
+  
+  /* ========== Forms ========== */
+  .form-input {
+    @apply w-full px-4 py-3 border-2 border-neutral-300 dark:border-neutral-600 rounded-xl focus:border-primary-500 dark:focus:border-accent-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-accent-900 transition-all duration-300 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100;
+  }
+  
+  .form-label {
+    @apply block mb-2 font-medium text-neutral-700 dark:text-neutral-300;
+  }
+  
+  /* ========== Loading States ========== */
+  .loading-spinner {
+    @apply inline-block w-6 h-6 border-4 border-neutral-200 border-t-primary-600 rounded-full animate-spin;
+  }
+  
+  .skeleton {
+    @apply bg-neutral-200 dark:bg-neutral-700 animate-pulse rounded;
+  }
+  
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  
+  .shimmer::after {
+    content: '';
+    @apply absolute inset-0 bg-shimmer animate-shimmer;
+  }
+  
+  /* ========== Toast Notifications ========== */
+  .toast {
+    @apply fixed top-20 right-4 z-50 max-w-sm p-4 rounded-xl shadow-strong backdrop-blur-sm transform transition-all duration-300;
+  }
+  
+  .toast-success {
+    @apply toast bg-success-500/90 text-white;
+  }
+  
+  .toast-error {
+    @apply toast bg-error-500/90 text-white;
+  }
+  
+  .toast-warning {
+    @apply toast bg-warning-500/90 text-white;
+  }
+  
+  .toast-info {
+    @apply toast bg-blue-500/90 text-white;
+  }
+  
+  /* ========== Gradients ========== */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-500 via-accent-500 to-accent-400 bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-rainbow {
+    @apply bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent;
+  }
+  
+  /* ========== Cart ========== */
+  .cart-panel {
+    @apply fixed right-0 top-0 h-full w-full md:w-96 bg-white dark:bg-neutral-900 shadow-strong z-50 transform transition-transform duration-300 ease-in-out;
+  }
+  
+  .cart-panel.closed {
+    @apply translate-x-full;
+  }
+  
+  .cart-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300;
+  }
+}
+
+/* ============================================
+   Utility Layer - Custom Utilities
+   ============================================ */
+@layer utilities {
+  
+  /* Text Utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Scrollbar Styling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-neutral-100 dark:bg-neutral-800;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-primary-500 dark:bg-accent-500 rounded-full hover:bg-primary-600 dark:hover:bg-accent-600;
+  }
+  
+  /* Backdrop Blur */
+  .glass {
+    @apply bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md;
+  }
+  
+  /* Hover Lift Effect */
+  .hover-lift {
+    @apply transform transition-all duration-300 hover:-translate-y-1 hover:shadow-medium;
+  }
+  
+  /* Hover Glow Effect */
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+  
+  .hover-glow:hover {
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.5));
+  }
+}
+
+/* ============================================
+   Custom Scrollbar (Global)
+   ============================================ */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-100 dark:bg-neutral-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-500 dark:bg-accent-500 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-600 dark:bg-accent-600;
+}
+
+/* ============================================
+   Responsive Utilities
+   ============================================ */
+@media (max-width: 768px) {
+  .hero {
+    @apply min-h-[70vh];
+  }
+  
+  .product-image {
+    @apply h-48;
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+  .navbar,
+  .footer,
+  .btn,
+  .toast {
+    @apply hidden;
+  }
+}
+
+
+
