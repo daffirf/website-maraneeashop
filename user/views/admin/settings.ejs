@@ -1,0 +1,676 @@
+<%- include('../layout', { 
+    title: title,
+    currentPage: 'admin',
+    additionalCSS: ['/css/admin.css']
+}) %>
+
+<!-- Admin Sidebar -->
+<div class="flex min-h-screen bg-gray-100">
+    <div class="admin-sidebar w-64 min-h-screen">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Maraneea Shop</h1>
+                    <p class="text-xs text-yellow-200">Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/products" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-box"></i>
+                    <span>Produk</span>
+                </a>
+                <a href="/admin/orders" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Pesanan</span>
+                </a>
+                <a href="/admin/users" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-users"></i>
+                    <span>Pengguna</span>
+                </a>
+                <a href="/admin/database" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-database"></i>
+                    <span>Database</span>
+                </a>
+                <a href="/admin/analytics" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analitik</span>
+                </a>
+                <a href="/admin/settings" class="flex items-center space-x-3 px-4 py-3 text-white bg-amber-600 rounded-lg">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 admin-content">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Pengaturan Sistem</h1>
+                    <p class="text-gray-600">Kelola konfigurasi toko dan sistem</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="saveAllSettings()" class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Simpan Semua
+                    </button>
+                    <button onclick="resetSettings()" class="btn-secondary">
+                        <i class="fas fa-undo mr-2"></i>
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Settings Navigation -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Kategori Pengaturan</h3>
+                        <nav class="space-y-2">
+                            <button onclick="showSettingsTab('general')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200 active">
+                                <i class="fas fa-cog mr-3"></i>
+                                Umum
+                            </button>
+                            <button onclick="showSettingsTab('store')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200">
+                                <i class="fas fa-store mr-3"></i>
+                                Toko
+                            </button>
+                            <button onclick="showSettingsTab('payment')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200">
+                                <i class="fas fa-credit-card mr-3"></i>
+                                Pembayaran
+                            </button>
+                            <button onclick="showSettingsTab('shipping')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200">
+                                <i class="fas fa-truck mr-3"></i>
+                                Pengiriman
+                            </button>
+                            <button onclick="showSettingsTab('email')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200">
+                                <i class="fas fa-envelope mr-3"></i>
+                                Email
+                            </button>
+                            <button onclick="showSettingsTab('security')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200">
+                                <i class="fas fa-shield-alt mr-3"></i>
+                                Keamanan
+                            </button>
+                            <button onclick="showSettingsTab('backup')" 
+                                    class="settings-tab w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg transition-colors duration-200">
+                                <i class="fas fa-database mr-3"></i>
+                                Backup
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Settings Content -->
+                <div class="lg:col-span-2">
+                    <!-- General Settings -->
+                    <div id="general-settings" class="settings-content">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Umum</h3>
+                            <form id="generalForm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="form-label">Nama Aplikasi</label>
+                                        <input type="text" name="appName" value="<%= settings.general.appName %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Versi Aplikasi</label>
+                                        <input type="text" name="appVersion" value="<%= settings.general.appVersion %>" class="form-input" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Timezone</label>
+                                        <select name="timezone" class="form-input">
+                                            <option value="Asia/Jakarta" <%= settings.general.timezone === 'Asia/Jakarta' ? 'selected' : '' %>>Asia/Jakarta</option>
+                                            <option value="Asia/Makassar" <%= settings.general.timezone === 'Asia/Makassar' ? 'selected' : '' %>>Asia/Makassar</option>
+                                            <option value="Asia/Jayapura" <%= settings.general.timezone === 'Asia/Jayapura' ? 'selected' : '' %>>Asia/Jayapura</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Bahasa Default</label>
+                                        <select name="language" class="form-input">
+                                            <option value="id" <%= settings.general.language === 'id' ? 'selected' : '' %>>Indonesia</option>
+                                            <option value="en" <%= settings.general.language === 'en' ? 'selected' : '' %>>English</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="form-label">Deskripsi Aplikasi</label>
+                                        <textarea name="appDescription" rows="3" class="form-textarea"><%= settings.general.appDescription %></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Store Settings -->
+                    <div id="store-settings" class="settings-content hidden">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Toko</h3>
+                            <form id="storeForm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="form-label">Nama Toko</label>
+                                        <input type="text" name="storeName" value="<%= settings.store.storeName %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Email Toko</label>
+                                        <input type="email" name="storeEmail" value="<%= settings.store.storeEmail %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Telepon Toko</label>
+                                        <input type="tel" name="storePhone" value="<%= settings.store.storePhone %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Website Toko</label>
+                                        <input type="url" name="storeWebsite" value="<%= settings.store.storeWebsite %>" class="form-input">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="form-label">Alamat Toko</label>
+                                        <textarea name="storeAddress" rows="3" class="form-textarea"><%= settings.store.storeAddress %></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Mata Uang</label>
+                                        <select name="currency" class="form-input">
+                                            <option value="IDR" <%= settings.store.currency === 'IDR' ? 'selected' : '' %>>Rupiah (IDR)</option>
+                                            <option value="USD" <%= settings.store.currency === 'USD' ? 'selected' : '' %>>US Dollar (USD)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Status Toko</label>
+                                        <select name="storeStatus" class="form-input">
+                                            <option value="active" <%= settings.store.storeStatus === 'active' ? 'selected' : '' %>>Aktif</option>
+                                            <option value="maintenance" <%= settings.store.storeStatus === 'maintenance' ? 'selected' : '' %>>Maintenance</option>
+                                            <option value="inactive" <%= settings.store.storeStatus === 'inactive' ? 'selected' : '' %>>Nonaktif</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Payment Settings -->
+                    <div id="payment-settings" class="settings-content hidden">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Pembayaran</h3>
+                            <form id="paymentForm">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Metode Pembayaran</h4>
+                                        <div class="space-y-3">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="paymentMethods" value="bank_transfer" 
+                                                       <%= settings.payment.methods.includes('bank_transfer') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">Transfer Bank</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="paymentMethods" value="credit_card" 
+                                                       <%= settings.payment.methods.includes('credit_card') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">Kartu Kredit</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="paymentMethods" value="e_wallet" 
+                                                       <%= settings.payment.methods.includes('e_wallet') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">E-Wallet</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="paymentMethods" value="cod" 
+                                                       <%= settings.payment.methods.includes('cod') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">Cash on Delivery (COD)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="form-label">Batas Waktu Pembayaran (menit)</label>
+                                            <input type="number" name="paymentTimeout" value="<%= settings.payment.timeout %>" class="form-input">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Biaya Admin (%)</label>
+                                            <input type="number" name="adminFee" value="<%= settings.payment.adminFee %>" step="0.01" class="form-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Settings -->
+                    <div id="shipping-settings" class="settings-content hidden">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Pengiriman</h3>
+                            <form id="shippingForm">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Kurir yang Tersedia</h4>
+                                        <div class="space-y-3">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="shippingMethods" value="jne" 
+                                                       <%= settings.shipping.methods.includes('jne') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">JNE</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="shippingMethods" value="tiki" 
+                                                       <%= settings.shipping.methods.includes('tiki') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">TIKI</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="shippingMethods" value="pos" 
+                                                       <%= settings.shipping.methods.includes('pos') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">POS Indonesia</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="shippingMethods" value="jnt" 
+                                                       <%= settings.shipping.methods.includes('jnt') ? 'checked' : '' %> 
+                                                       class="form-checkbox">
+                                                <span class="ml-2">J&T</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="form-label">Biaya Pengiriman Dasar (Rp)</label>
+                                            <input type="number" name="baseShippingCost" value="<%= settings.shipping.baseCost %>" class="form-input">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Estimasi Pengiriman (hari)</label>
+                                            <input type="number" name="estimatedDays" value="<%= settings.shipping.estimatedDays %>" class="form-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Email Settings -->
+                    <div id="email-settings" class="settings-content hidden">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Email</h3>
+                            <form id="emailForm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="form-label">SMTP Host</label>
+                                        <input type="text" name="smtpHost" value="<%= settings.email.smtpHost %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">SMTP Port</label>
+                                        <input type="number" name="smtpPort" value="<%= settings.email.smtpPort %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Email Pengirim</label>
+                                        <input type="email" name="fromEmail" value="<%= settings.email.fromEmail %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Nama Pengirim</label>
+                                        <input type="text" name="fromName" value="<%= settings.email.fromName %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Username SMTP</label>
+                                        <input type="text" name="smtpUsername" value="<%= settings.email.smtpUsername %>" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Password SMTP</label>
+                                        <input type="password" name="smtpPassword" value="<%= settings.email.smtpPassword %>" class="form-input">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="smtpSecure" <%= settings.email.smtpSecure ? 'checked' : '' %> class="form-checkbox">
+                                            <span class="ml-2">Gunakan SSL/TLS</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div id="security-settings" class="settings-content hidden">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Keamanan</h3>
+                            <form id="securityForm">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Sesi & Login</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label class="form-label">Durasi Sesi (menit)</label>
+                                                <input type="number" name="sessionTimeout" value="<%= settings.security.sessionTimeout %>" class="form-input">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Maksimal Login Gagal</label>
+                                                <input type="number" name="maxLoginAttempts" value="<%= settings.security.maxLoginAttempts %>" class="form-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Password</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label class="form-label">Minimal Panjang Password</label>
+                                                <input type="number" name="minPasswordLength" value="<%= settings.security.minPasswordLength %>" class="form-input">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Masa Aktif Password (hari)</label>
+                                                <input type="number" name="passwordExpiry" value="<%= settings.security.passwordExpiry %>" class="form-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Keamanan Tambahan</h4>
+                                        <div class="space-y-3">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="requireTwoFactor" <%= settings.security.requireTwoFactor ? 'checked' : '' %> class="form-checkbox">
+                                                <span class="ml-2">Wajibkan Two-Factor Authentication</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="logUserActivity" <%= settings.security.logUserActivity ? 'checked' : '' %> class="form-checkbox">
+                                                <span class="ml-2">Log Aktivitas Pengguna</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="enableRateLimit" <%= settings.security.enableRateLimit ? 'checked' : '' %> class="form-checkbox">
+                                                <span class="ml-2">Aktifkan Rate Limiting</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Backup Settings -->
+                    <div id="backup-settings" class="settings-content hidden">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Backup</h3>
+                            <form id="backupForm">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Otomatis Backup</h4>
+                                        <div class="space-y-3">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="autoBackup" <%= settings.backup.autoBackup ? 'checked' : '' %> class="form-checkbox">
+                                                <span class="ml-2">Aktifkan Backup Otomatis</span>
+                                            </label>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <label class="form-label">Frekuensi Backup</label>
+                                                    <select name="backupFrequency" class="form-input">
+                                                        <option value="daily" <%= settings.backup.frequency === 'daily' ? 'selected' : '' %>>Harian</option>
+                                                        <option value="weekly" <%= settings.backup.frequency === 'weekly' ? 'selected' : '' %>>Mingguan</option>
+                                                        <option value="monthly" <%= settings.backup.frequency === 'monthly' ? 'selected' : '' %>>Bulanan</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label">Waktu Backup</label>
+                                                    <input type="time" name="backupTime" value="<%= settings.backup.time %>" class="form-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-md font-medium text-gray-700 mb-3">Lokasi Backup</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label class="form-label">Lokasi Lokal</label>
+                                                <input type="text" name="localBackupPath" value="<%= settings.backup.localPath %>" class="form-input">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Retensi Backup (hari)</label>
+                                                <input type="number" name="backupRetention" value="<%= settings.backup.retention %>" class="form-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-3">
+                                        <button type="button" onclick="createBackup()" class="btn-primary">
+                                            <i class="fas fa-save mr-2"></i>
+                                            Buat Backup Sekarang
+                                        </button>
+                                        <button type="button" onclick="restoreBackup()" class="btn-secondary">
+                                            <i class="fas fa-upload mr-2"></i>
+                                            Restore Backup
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show settings tab
+function showSettingsTab(tabName) {
+    // Hide all settings content
+    const allSettings = document.querySelectorAll('.settings-content');
+    allSettings.forEach(setting => setting.classList.add('hidden'));
+    
+    // Remove active class from all tabs
+    const allTabs = document.querySelectorAll('.settings-tab');
+    allTabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Show selected tab content
+    document.getElementById(tabName + '-settings').classList.remove('hidden');
+    
+    // Add active class to selected tab
+    event.target.classList.add('active');
+}
+
+// Save all settings
+async function saveAllSettings() {
+    try {
+        const forms = ['generalForm', 'storeForm', 'paymentForm', 'shippingForm', 'emailForm', 'securityForm', 'backupForm'];
+        const allData = {};
+        
+        forms.forEach(formId => {
+            const form = document.getElementById(formId);
+            if (form) {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                
+                // Handle checkbox arrays
+                if (formId === 'paymentForm' || formId === 'shippingForm') {
+                    const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+                    data[formId.replace('Form', 'Methods')] = Array.from(checkboxes).map(cb => cb.value);
+                }
+                
+                allData[formId.replace('Form', '')] = data;
+            }
+        });
+        
+        const response = await fetch('/admin/settings/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(allData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Pengaturan berhasil disimpan', 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        showNotification('Terjadi kesalahan saat menyimpan pengaturan', 'error');
+    }
+}
+
+// Reset settings
+async function resetSettings() {
+    if (!confirm('Apakah Anda yakin ingin mereset semua pengaturan ke nilai default? Tindakan ini tidak dapat dibatalkan.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/settings/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Pengaturan berhasil direset', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error resetting settings:', error);
+        showNotification('Terjadi kesalahan saat mereset pengaturan', 'error');
+    }
+}
+
+// Create backup
+async function createBackup() {
+    try {
+        showNotification('Membuat backup...', 'info');
+        const response = await fetch('/admin/settings/backup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Backup berhasil dibuat', 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error creating backup:', error);
+        showNotification('Terjadi kesalahan saat membuat backup', 'error');
+    }
+}
+
+// Restore backup
+async function restoreBackup() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('backupFile', file);
+            
+            showNotification('Memulihkan backup...', 'info');
+            const response = await fetch('/admin/settings/restore', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification('Backup berhasil dipulihkan', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showNotification(result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error restoring backup:', error);
+            showNotification('Terjadi kesalahan saat memulihkan backup', 'error');
+        }
+    };
+    
+    fileInput.click();
+}
+
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+    
+    // Set colors based on type
+    const colors = {
+        success: 'bg-green-500 text-white',
+        error: 'bg-red-500 text-white',
+        warning: 'bg-yellow-500 text-white',
+        info: 'bg-blue-500 text-white'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    
+    // Add icon based on type
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icons[type] || icons.info} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+</script>

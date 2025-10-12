@@ -1,0 +1,238 @@
+<%- include('../layout', { 
+    title: title,
+    currentPage: 'admin',
+    additionalCSS: ['/css/admin.css']
+}) %>
+
+<!-- Admin Sidebar -->
+<div class="flex min-h-screen bg-gray-100">
+    <div class="admin-sidebar w-64 min-h-screen">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Maraneea Shop</h1>
+                    <p class="text-xs text-yellow-200">Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-white bg-amber-600 rounded-lg">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/products" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-box"></i>
+                    <span>Produk</span>
+                </a>
+                <a href="/admin/orders" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Pesanan</span>
+                </a>
+                <a href="/admin/users" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-users"></i>
+                    <span>Pengguna</span>
+                </a>
+                <a href="/admin/analytics" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analitik</span>
+                </a>
+                <a href="/admin/settings" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 admin-content">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+                    <p class="text-gray-600">Selamat datang kembali, <%= user.name %>!</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Terakhir login</p>
+                        <p class="text-sm font-medium text-gray-800"><%= new Date().toLocaleDateString('id-ID') %></p>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Products -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-box text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Produk</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= stats.totalProducts %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Users -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Pengguna</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= stats.totalUsers %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Orders -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-shopping-cart text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Pesanan</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= stats.totalOrders %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Orders -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-red-100 rounded-full">
+                            <i class="fas fa-clock text-red-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pesanan Pending</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= stats.pendingOrders %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Tables -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Sales Chart -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Penjualan 7 Hari Terakhir</h3>
+                    <div class="h-64 flex items-end space-x-2">
+                        <% salesData.forEach((day, index) => { %>
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="w-full bg-blue-200 rounded-t" 
+                                     style="height: <%= (day.totalSales / Math.max(...salesData.map(d => d.totalSales))) * 200 %>px">
+                                </div>
+                                <div class="text-xs text-gray-600 mt-2">
+                                    <%= new Date(day._id).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %>
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    Rp <%= day.totalSales.toLocaleString('id-ID') %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Pesanan Terbaru</h3>
+                        <a href="/admin/orders" class="text-sm text-blue-600 hover:text-blue-800">Lihat semua</a>
+                    </div>
+                    <div class="space-y-3">
+                        <% recentOrders.forEach(order => { %>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="font-medium text-gray-800">#<%= order.orderNumber %></p>
+                                    <p class="text-sm text-gray-600"><%= order.customer.name %></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-800">Rp <%= order.pricing.total.toLocaleString('id-ID') %></p>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium status-<%= order.status %>">
+                                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                    </span>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock Products -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Produk Stok Rendah</h3>
+                    <a href="/admin/products?filter=low-stock" class="text-sm text-blue-600 hover:text-blue-800">Lihat semua</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <% lowStockProducts.forEach(product => { %>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <img class="h-10 w-10 rounded-lg object-cover" 
+                                                     src="<%= product.images[0]?.url || '/images/placeholder-product.jpg' %>" 
+                                                     alt="<%= product.name %>">
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900"><%= product.name %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                                        <%= product.category.replace('-', ' ') %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <%= product.stock %> tersisa
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        Rp <%= product.price.toLocaleString('id-ID') %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="/admin/products/edit/<%= product._id %>" 
+                                           class="text-blue-600 hover:text-blue-900">Edit</a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-pending { @apply bg-yellow-100 text-yellow-800; }
+.status-confirmed { @apply bg-blue-100 text-blue-800; }
+.status-shipped { @apply bg-purple-100 text-purple-800; }
+.status-delivered { @apply bg-green-100 text-green-800; }
+.status-cancelled { @apply bg-red-100 text-red-800; }
+</style>
+

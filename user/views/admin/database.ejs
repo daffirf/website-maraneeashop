@@ -1,0 +1,568 @@
+<%- include('../layout', { 
+    title: title,
+    currentPage: 'admin',
+    additionalCSS: ['/css/admin.css']
+}) %>
+
+<!-- Admin Sidebar -->
+<div class="flex min-h-screen bg-gray-100">
+    <div class="admin-sidebar w-64 min-h-screen">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Maraneea Shop</h1>
+                    <p class="text-xs text-yellow-200">Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/products" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-box"></i>
+                    <span>Produk</span>
+                </a>
+                <a href="/admin/orders" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Pesanan</span>
+                </a>
+                <a href="/admin/users" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-users"></i>
+                    <span>Pengguna</span>
+                </a>
+                <a href="/admin/database" class="flex items-center space-x-3 px-4 py-3 text-white bg-amber-600 rounded-lg">
+                    <i class="fas fa-database"></i>
+                    <span>Database</span>
+                </a>
+                <a href="/admin/analytics" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analitik</span>
+                </a>
+                <a href="/admin/settings" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-amber-600 rounded-lg transition-colors duration-300">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 admin-content">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Manajemen Database</h1>
+                    <p class="text-gray-600">Kelola dan pantau database toko</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="refreshDatabaseStats()" class="btn-secondary">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Refresh
+                    </button>
+                    <button onclick="exportDatabase()" class="btn-primary">
+                        <i class="fas fa-download mr-2"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Stats -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Database Size -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-database text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Ukuran Database</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= dbStats.size %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Collections -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-layer-group text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Collections</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= dbStats.collections %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Documents -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-file-alt text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Documents</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= dbStats.documents %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Index Count -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <i class="fas fa-search text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Indexes</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= dbStats.indexes %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collection Details -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Collections Overview -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Detail Collections</h3>
+                    <div class="space-y-4">
+                        <% collections.forEach(collection => { %>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-table text-amber-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800"><%= collection.name %></p>
+                                        <p class="text-sm text-gray-600"><%= collection.count %> documents</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">Size</p>
+                                    <p class="font-semibold text-gray-800"><%= collection.size %></p>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Database Health -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Status Database</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Status Koneksi</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Connected
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Uptime</span>
+                            <span class="font-medium text-gray-800"><%= dbStats.uptime %></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Version</span>
+                            <span class="font-medium text-gray-800"><%= dbStats.version %></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Memory Usage</span>
+                            <span class="font-medium text-gray-800"><%= dbStats.memory %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Operations -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Operasi Database</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Backup Database -->
+                    <button onclick="backupDatabase()" class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-colors duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-save text-2xl text-gray-400 mb-2"></i>
+                            <p class="font-medium text-gray-700">Backup Database</p>
+                            <p class="text-sm text-gray-500">Buat backup lengkap</p>
+                        </div>
+                    </button>
+
+                    <!-- Optimize Database -->
+                    <button onclick="optimizeDatabase()" class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-tools text-2xl text-gray-400 mb-2"></i>
+                            <p class="font-medium text-gray-700">Optimize Database</p>
+                            <p class="text-sm text-gray-500">Perbaiki dan optimasi</p>
+                        </div>
+                    </button>
+
+                    <!-- Clean Logs -->
+                    <button onclick="cleanLogs()" class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-broom text-2xl text-gray-400 mb-2"></i>
+                            <p class="font-medium text-gray-700">Bersihkan Logs</p>
+                            <p class="text-sm text-gray-500">Hapus log lama</p>
+                        </div>
+                    </button>
+
+                    <!-- Rebuild Indexes -->
+                    <button onclick="rebuildIndexes()" class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-sync text-2xl text-gray-400 mb-2"></i>
+                            <p class="font-medium text-gray-700">Rebuild Indexes</p>
+                            <p class="text-sm text-gray-500">Perbarui semua index</p>
+                        </div>
+                    </button>
+
+                    <!-- Check Integrity -->
+                    <button onclick="checkIntegrity()" class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt text-2xl text-gray-400 mb-2"></i>
+                            <p class="font-medium text-gray-700">Check Integrity</p>
+                            <p class="text-sm text-gray-500">Periksa integritas data</p>
+                        </div>
+                    </button>
+
+                    <!-- Reset Database -->
+                    <button onclick="resetDatabase()" class="flex items-center justify-center p-4 border-2 border-dashed border-red-300 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-exclamation-triangle text-2xl text-red-400 mb-2"></i>
+                            <p class="font-medium text-red-700">Reset Database</p>
+                            <p class="text-sm text-red-500">Hapus semua data</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Database Activities -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Aktivitas Database Terbaru</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operasi</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <% activities.forEach(activity => { %>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <%= new Date(activity.timestamp).toLocaleString('id-ID') %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <%= activity.operation %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <%= activity.collection %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= activity.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                            <%= activity.status === 'success' ? 'Berhasil' : 'Gagal' %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Database operations
+async function refreshDatabaseStats() {
+    try {
+        showNotification('Memperbarui statistik database...', 'info');
+        const response = await fetch('/admin/database/refresh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Statistik database berhasil diperbarui', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error refreshing database stats:', error);
+        showNotification('Terjadi kesalahan saat memperbarui statistik', 'error');
+    }
+}
+
+async function backupDatabase() {
+    if (!confirm('Apakah Anda yakin ingin membuat backup database? Proses ini mungkin memakan waktu beberapa menit.')) {
+        return;
+    }
+
+    try {
+        showNotification('Memulai backup database...', 'info');
+        const response = await fetch('/admin/database/backup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Backup database berhasil dibuat', 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error backing up database:', error);
+        showNotification('Terjadi kesalahan saat membuat backup', 'error');
+    }
+}
+
+async function optimizeDatabase() {
+    if (!confirm('Apakah Anda yakin ingin mengoptimalkan database? Proses ini akan memakan waktu beberapa menit.')) {
+        return;
+    }
+
+    try {
+        showNotification('Memulai optimasi database...', 'info');
+        const response = await fetch('/admin/database/optimize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Database berhasil dioptimalkan', 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error optimizing database:', error);
+        showNotification('Terjadi kesalahan saat mengoptimalkan database', 'error');
+    }
+}
+
+async function cleanLogs() {
+    if (!confirm('Apakah Anda yakin ingin membersihkan log database? Tindakan ini tidak dapat dibatalkan.')) {
+        return;
+    }
+
+    try {
+        showNotification('Membersihkan log database...', 'info');
+        const response = await fetch('/admin/database/clean-logs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Log database berhasil dibersihkan', 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error cleaning logs:', error);
+        showNotification('Terjadi kesalahan saat membersihkan log', 'error');
+    }
+}
+
+async function rebuildIndexes() {
+    if (!confirm('Apakah Anda yakin ingin membangun ulang semua index? Proses ini akan memakan waktu beberapa menit.')) {
+        return;
+    }
+
+    try {
+        showNotification('Membangun ulang index database...', 'info');
+        const response = await fetch('/admin/database/rebuild-indexes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Index database berhasil dibangun ulang', 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error rebuilding indexes:', error);
+        showNotification('Terjadi kesalahan saat membangun ulang index', 'error');
+    }
+}
+
+async function checkIntegrity() {
+    try {
+        showNotification('Memeriksa integritas database...', 'info');
+        const response = await fetch('/admin/database/check-integrity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Integritas database: ' + result.integrity, 'success');
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error checking integrity:', error);
+        showNotification('Terjadi kesalahan saat memeriksa integritas', 'error');
+    }
+}
+
+async function resetDatabase() {
+    if (!confirm('PERINGATAN: Apakah Anda yakin ingin mereset database? Tindakan ini akan menghapus SEMUA DATA dan TIDAK DAPAT DIBATALKAN!')) {
+        return;
+    }
+
+    const confirmText = prompt('Ketik "RESET" untuk konfirmasi reset database:');
+    if (confirmText !== 'RESET') {
+        showNotification('Reset database dibatalkan', 'warning');
+        return;
+    }
+
+    try {
+        showNotification('Memulai reset database...', 'warning');
+        const response = await fetch('/admin/database/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Database berhasil direset', 'success');
+            setTimeout(() => {
+                window.location.href = '/admin';
+            }, 2000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error resetting database:', error);
+        showNotification('Terjadi kesalahan saat mereset database', 'error');
+    }
+}
+
+async function exportDatabase() {
+    try {
+        showNotification('Menyiapkan export database...', 'info');
+        const response = await fetch('/admin/database/export', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `database-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            showNotification('Export database berhasil', 'success');
+        } else {
+            const result = await response.json();
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error exporting database:', error);
+        showNotification('Terjadi kesalahan saat export database', 'error');
+    }
+}
+
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300`;
+    
+    // Set colors based on type
+    const colors = {
+        success: 'bg-green-500 text-white',
+        error: 'bg-red-500 text-white',
+        warning: 'bg-yellow-500 text-white',
+        info: 'bg-blue-500 text-white'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    
+    // Add icon based on type
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icons[type] || icons.info} mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+</script>

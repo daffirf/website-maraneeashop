@@ -1,0 +1,348 @@
+<%- include('../layout', { 
+    title: title,
+    description: description,
+    currentPage: 'products',
+    additionalCSS: ['/css/products.css']
+}) %>
+
+<!-- Breadcrumb -->
+<section class="bg-gray-100 py-4">
+    <div class="container mx-auto px-4">
+        <nav class="flex items-center space-x-2 text-sm">
+            <a href="/" class="text-gray-600 hover:text-amber-600">Beranda</a>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+            <span class="text-gray-800">Produk</span>
+            <% if (filters.category) { %>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-800 capitalize"><%= filters.category.replace('-', ' ') %></span>
+            <% } %>
+        </nav>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section class="py-8">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Filters -->
+            <div class="lg:w-1/4">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Filter Produk</h3>
+                    
+                    <!-- Search -->
+                    <div class="mb-6">
+                        <label class="form-label">Cari Produk</label>
+                        <input type="text" 
+                               value="<%= filters.search || '' %>"
+                               placeholder="Masukkan kata kunci..."
+                               class="form-input"
+                               onkeypress="handleSearchKeypress(event)">
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="mb-6">
+                        <label class="form-label">Kategori</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="category" value="" 
+                                       <%= !filters.category ? 'checked' : '' %>
+                                       class="mr-2" onchange="applyFilters()">
+                                <span class="text-sm">Semua Kategori</span>
+                            </label>
+                            <% categories.forEach(category => { %>
+                                <label class="flex items-center">
+                                    <input type="radio" name="category" value="<%= category %>"
+                                           <%= filters.category === category ? 'checked' : '' %>
+                                           class="mr-2" onchange="applyFilters()">
+                                    <span class="text-sm capitalize"><%= category.replace('-', ' ') %></span>
+                                </label>
+                            <% }); %>
+                        </div>
+                    </div>
+
+                    <!-- Subcategories -->
+                    <% if (subcategories.length > 0) { %>
+                    <div class="mb-6">
+                        <label class="form-label">Subkategori</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="subcategory" value="" 
+                                       <%= !filters.subcategory ? 'checked' : '' %>
+                                       class="mr-2" onchange="applyFilters()">
+                                <span class="text-sm">Semua Subkategori</span>
+                            </label>
+                            <% subcategories.forEach(subcategory => { %>
+                                <label class="flex items-center">
+                                    <input type="radio" name="subcategory" value="<%= subcategory %>"
+                                           <%= filters.subcategory === subcategory ? 'checked' : '' %>
+                                           class="mr-2" onchange="applyFilters()">
+                                    <span class="text-sm"><%= subcategory %></span>
+                                </label>
+                            <% }); %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Price Range -->
+                    <div class="mb-6">
+                        <label class="form-label">Rentang Harga</label>
+                        <div class="space-y-3">
+                            <div>
+                                <input type="number" 
+                                       name="minPrice" 
+                                       placeholder="Harga minimum"
+                                       value="<%= filters.minPrice || '' %>"
+                                       class="form-input text-sm"
+                                       onchange="applyFilters()">
+                            </div>
+                            <div>
+                                <input type="number" 
+                                       name="maxPrice" 
+                                       placeholder="Harga maksimum"
+                                       value="<%= filters.maxPrice || '' %>"
+                                       class="form-input text-sm"
+                                       onchange="applyFilters()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="mb-6">
+                        <label class="form-label">Urutkan</label>
+                        <select name="sort" class="form-input text-sm" onchange="applyFilters()">
+                            <option value="newest" <%= filters.sort === 'newest' ? 'selected' : '' %>>Terbaru</option>
+                            <option value="oldest" <%= filters.sort === 'oldest' ? 'selected' : '' %>>Terlama</option>
+                            <option value="price-low" <%= filters.sort === 'price-low' ? 'selected' : '' %>>Harga Terendah</option>
+                            <option value="price-high" <%= filters.sort === 'price-high' ? 'selected' : '' %>>Harga Tertinggi</option>
+                            <option value="popular" <%= filters.sort === 'popular' ? 'selected' : '' %>>Populer</option>
+                            <option value="name" <%= filters.sort === 'name' ? 'selected' : '' %>>Nama A-Z</option>
+                        </select>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <button onclick="clearFilters()" class="w-full btn-outline text-sm">
+                        <i class="fas fa-times mr-2"></i>Hapus Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="lg:w-3/4">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+                            <% if (filters.category) { %>
+                                <%= filters.category.replace('-', ' ').toUpperCase() %>
+                            <% } else { %>
+                                Semua Produk
+                            <% } %>
+                        </h1>
+                        <p class="text-gray-600">
+                            Menampilkan <%= pagination.totalProducts %> produk
+                            <% if (filters.search) { %>
+                                untuk "<%= filters.search %>"
+                            <% } %>
+                        </p>
+                    </div>
+                    
+                    <!-- View Options -->
+                    <div class="flex items-center space-x-2 mt-4 sm:mt-0">
+                        <span class="text-sm text-gray-600">Tampilan:</span>
+                        <button onclick="setViewMode('grid')" 
+                                class="p-2 rounded <%= viewMode === 'grid' ? 'bg-amber-100 text-amber-600' : 'text-gray-400 hover:text-gray-600' %>">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button onclick="setViewMode('list')" 
+                                class="p-2 rounded <%= viewMode === 'list' ? 'bg-amber-100 text-amber-600' : 'text-gray-400 hover:text-gray-600' %>">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <% if (products.length > 0) { %>
+                    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% products.forEach(product => { %>
+                            <div class="product-card group">
+                                <div class="relative">
+                                    <a href="/products/<%= product.seo.slug %>">
+                                        <img src="<%= product.images[0]?.url || '/images/placeholder-product.jpg' %>" 
+                                             alt="<%= product.name %>" 
+                                             class="product-image group-hover:scale-105 transition-transform duration-300">
+                                    </a>
+                                    
+                                    <!-- Badges -->
+                                    <div class="absolute top-3 left-3 flex flex-col space-y-1">
+                                        <% if (product.isNew) { %>
+                                            <span class="badge badge-new">Baru</span>
+                                        <% } %>
+                                        <% if (product.isOnSale && product.discountPercentage > 0) { %>
+                                            <span class="badge badge-sale">-<%= product.discountPercentage %>%</span>
+                                        <% } %>
+                                        <% if (product.isFeatured) { %>
+                                            <span class="badge badge-featured">Unggulan</span>
+                                        <% } %>
+                                    </div>
+
+                                    <!-- Wishlist Button -->
+                                    <button class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-red-50 transition-colors duration-300 wishlist-btn"
+                                            data-product-id="<%= product._id %>">
+                                        <i class="far fa-heart text-gray-400 hover:text-red-500"></i>
+                                    </button>
+                                </div>
+
+                                <div class="p-4">
+                                    <a href="/products/<%= product.seo.slug %>">
+                                        <h3 class="product-title group-hover:text-amber-600 transition-colors duration-300">
+                                            <%= product.name %>
+                                        </h3>
+                                    </a>
+                                    
+                                    <!-- Rating -->
+                                    <div class="flex items-center mb-2">
+                                        <div class="flex text-yellow-400">
+                                            <% for (let i = 1; i <= 5; i++) { %>
+                                                <i class="fas fa-star <%= i <= Math.floor(product.rating.average) ? '' : 'text-gray-300' %>"></i>
+                                            <% } %>
+                                        </div>
+                                        <span class="text-sm text-gray-500 ml-2">(<%= product.rating.count %>)</span>
+                                    </div>
+
+                                    <!-- Price -->
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div>
+                                            <span class="product-price">
+                                                Rp <%= product.price.toLocaleString('id-ID') %>
+                                            </span>
+                                            <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                                <span class="product-original-price ml-2">
+                                                    Rp <%= product.originalPrice.toLocaleString('id-ID') %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="flex space-x-2">
+                                        <button class="flex-1 btn-primary text-sm py-2 add-to-cart"
+                                                data-product-id="<%= product._id %>">
+                                            <i class="fas fa-shopping-cart mr-1"></i>
+                                            Beli
+                                        </button>
+                                        <a href="/products/<%= product.seo.slug %>" 
+                                           class="btn-outline text-sm py-2 px-3">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+
+                    <!-- Pagination -->
+                    <% if (pagination.totalPages > 1) { %>
+                        <div class="mt-12 flex justify-center">
+                            <nav class="flex items-center space-x-2">
+                                <% if (pagination.hasPrev) { %>
+                                    <a href="?<%= new URLSearchParams({...filters, page: pagination.prevPage}) %>" 
+                                       class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                <% } %>
+
+                                <% for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                                    <a href="?<%= new URLSearchParams({...filters, page: i}) %>" 
+                                       class="px-3 py-2 text-sm border rounded-md <%= i === pagination.currentPage ? 'bg-amber-600 text-white border-amber-600' : 'bg-white border-gray-300 hover:bg-gray-50' %>">
+                                        <%= i %>
+                                    </a>
+                                <% } %>
+
+                                <% if (pagination.hasNext) { %>
+                                    <a href="?<%= new URLSearchParams({...filters, page: pagination.nextPage}) %>" 
+                                       class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                <% } %>
+                            </nav>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <!-- No Products Found -->
+                    <div class="text-center py-12">
+                        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-search text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Produk Tidak Ditemukan</h3>
+                        <p class="text-gray-600 mb-6">
+                            Maaf, tidak ada produk yang sesuai dengan filter yang Anda pilih.
+                        </p>
+                        <button onclick="clearFilters()" class="btn-primary">
+                            <i class="fas fa-refresh mr-2"></i>
+                            Reset Filter
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// View mode state
+let viewMode = 'grid';
+
+// Apply filters
+function applyFilters() {
+    const form = document.querySelector('.bg-white.rounded-lg.shadow-md');
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    for (let [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+    
+    // Add search query
+    const searchInput = document.querySelector('input[placeholder="Masukkan kata kunci..."]');
+    if (searchInput && searchInput.value) {
+        params.append('search', searchInput.value);
+    }
+    
+    window.location.href = '?' + params.toString();
+}
+
+// Clear filters
+function clearFilters() {
+    window.location.href = '/products';
+}
+
+// Handle search keypress
+function handleSearchKeypress(event) {
+    if (event.key === 'Enter') {
+        applyFilters();
+    }
+}
+
+// Set view mode
+function setViewMode(mode) {
+    viewMode = mode;
+    const grid = document.getElementById('productsGrid');
+    
+    if (mode === 'list') {
+        grid.className = 'space-y-4';
+        // Convert cards to list view
+        const cards = grid.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            card.className = 'product-card flex items-center space-x-4 p-4';
+        });
+    } else {
+        grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+        // Convert back to grid view
+        const cards = grid.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            card.className = 'product-card group';
+        });
+    }
+}
+</script>
+
