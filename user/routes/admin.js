@@ -442,32 +442,59 @@ router.get('/users', requireAdmin, async (req, res) => {
 // Database Management
 router.get('/database', requireAdmin, async (req, res) => {
     try {
-        // Mock database stats - in real implementation, get from MongoDB
-        const dbStats = {
-            size: '2.5 MB',
-            collections: 5,
-            documents: 1250,
-            indexes: 12,
-            uptime: '7 hari 12 jam',
-            version: 'MongoDB 6.0',
-            memory: '45 MB'
+        const mongoose = require('mongoose');
+        const Product = require('../models/Product');
+        const User = require('../models/User');
+        const Order = require('../models/Order');
+        const Cart = require('../models/Cart');
+
+        // Get real database stats
+        let dbStats = {
+            size: '0 MB',
+            collections: 0,
+            documents: 0,
+            indexes: 0,
+            uptime: 'N/A',
+            version: 'MongoDB',
+            memory: 'N/A'
         };
 
-        const collections = [
-            { name: 'users', count: 150, size: '850 KB' },
-            { name: 'products', count: 500, size: '1.2 MB' },
-            { name: 'orders', count: 300, size: '400 KB' },
-            { name: 'carts', count: 200, size: '50 KB' },
-            { name: 'sessions', count: 100, size: '25 KB' }
-        ];
+        let collections = [];
+        let activities = [];
 
-        const activities = [
-            { timestamp: new Date(), operation: 'INSERT', collection: 'orders', status: 'success' },
-            { timestamp: new Date(Date.now() - 300000), operation: 'UPDATE', collection: 'products', status: 'success' },
-            { timestamp: new Date(Date.now() - 600000), operation: 'DELETE', collection: 'carts', status: 'success' },
-            { timestamp: new Date(Date.now() - 900000), operation: 'CREATE_INDEX', collection: 'orders', status: 'success' },
-            { timestamp: new Date(Date.now() - 1200000), operation: 'BACKUP', collection: 'all', status: 'success' }
-        ];
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState === 1) {
+            try {
+                // Get database stats
+                const adminDb = mongoose.connection.db.admin();
+                const dbInfo = await mongoose.connection.db.stats();
+                
+                dbStats.size = `${(dbInfo.dataSize / 1024 / 1024).toFixed(2)} MB`;
+                dbStats.collections = dbInfo.collections || 0;
+                dbStats.documents = dbInfo.objects || 0;
+                dbStats.indexes = dbInfo.indexes || 0;
+
+                // Get collection counts
+                const productCount = await Product.countDocuments();
+                const userCount = await User.countDocuments();
+                const orderCount = await Order.countDocuments();
+                const cartCount = await Cart.countDocuments();
+
+                collections = [
+                    { name: 'users', count: userCount, size: 'N/A' },
+                    { name: 'products', count: productCount, size: 'N/A' },
+                    { name: 'orders', count: orderCount, size: 'N/A' },
+                    { name: 'carts', count: cartCount, size: 'N/A' }
+                ];
+
+                // Get recent activities (mock for now)
+                activities = [
+                    { timestamp: new Date(), operation: 'VIEW', collection: 'database', status: 'success' }
+                ];
+            } catch (dbError) {
+                console.error('Error getting database stats:', dbError);
+            }
+        }
 
         res.render('admin/database', {
             title: 'Manajemen Database - Admin Panel',
@@ -482,6 +509,262 @@ router.get('/database', requireAdmin, async (req, res) => {
         res.status(500).render('error', {
             title: 'Error - Admin Panel',
             error: 'Terjadi kesalahan saat memuat database'
+        });
+    }
+});
+
+// Seed Database Route
+router.post('/database/seed', requireAdmin, async (req, res) => {
+    try {
+        const mongoose = require('mongoose');
+        const Product = require('../models/Product');
+        const User = require('../models/User');
+
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({
+                success: false,
+                message: 'MongoDB tidak terhubung. Pastikan database sudah dikonfigurasi dengan benar.'
+            });
+        }
+
+        // Get or create admin user
+        let adminUser = await User.findOne({ role: 'admin' });
+        if (!adminUser) {
+            adminUser = new User({
+                name: 'Admin Maraneea Shop',
+                email: 'admin@maraneeashop.com',
+                password: 'admin123',
+                phone: '081234567890',
+                role: 'admin',
+                isActive: true
+            });
+            await adminUser.save();
+        }
+
+        // Sample products data (same as in seed-database.js)
+        const sampleProducts = [
+            {
+                name: 'Baju Muslimah Modern Set',
+                description: 'Baju muslimah modern dengan desain elegan dan nyaman dipakai. Terbuat dari bahan katun berkualitas tinggi yang adem dan tidak mudah kusut.',
+                shortDescription: 'Baju muslimah modern set dengan desain elegan',
+                price: 299000,
+                originalPrice: 399000,
+                category: 'baju-muslimah',
+                subcategory: 'Set',
+                images: [{ url: '/images/products/baju-muslimah-1.jpg', alt: 'Baju Muslimah Modern Set', isPrimary: true }],
+                stock: 50,
+                weight: 500,
+                tags: ['baju muslimah', 'modern', 'set', 'elegan'],
+                isActive: true,
+                isFeatured: true,
+                isNew: true,
+                isOnSale: true,
+                discountPercentage: 25,
+                rating: { average: 4.8, count: 120 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Gamis Syar\'i Premium',
+                description: 'Gamis syar\'i dengan model long dress yang nyaman dan menutup aurat dengan sempurna.',
+                shortDescription: 'Gamis syar\'i premium dengan model long dress',
+                price: 450000,
+                originalPrice: 550000,
+                category: 'baju-muslimah',
+                subcategory: 'Gamis',
+                images: [{ url: '/images/products/baju-muslimah-2.jpg', alt: 'Gamis Syar\'i Premium', isPrimary: true }],
+                stock: 30,
+                weight: 600,
+                tags: ['gamis', 'syar\'i', 'premium', 'long dress'],
+                isActive: true,
+                isFeatured: true,
+                isOnSale: true,
+                discountPercentage: 18,
+                rating: { average: 4.9, count: 85 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Hampers Lebaran Premium',
+                description: 'Hampers lebaran dengan isi lengkap dan berkualitas. Berisi aneka kue kering, teh, kopi, dan produk makanan halal lainnya.',
+                shortDescription: 'Hampers lebaran premium dengan isi lengkap',
+                price: 599000,
+                originalPrice: 749000,
+                category: 'hampers',
+                subcategory: 'Lebaran',
+                images: [{ url: '/images/products/hampers-1.jpg', alt: 'Hampers Lebaran Premium', isPrimary: true }],
+                stock: 25,
+                weight: 2000,
+                tags: ['hampers', 'lebaran', 'premium', 'kue kering'],
+                isActive: true,
+                isFeatured: true,
+                isNew: true,
+                isOnSale: true,
+                discountPercentage: 20,
+                rating: { average: 4.9, count: 95 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Hampers Ramadhan Special',
+                description: 'Hampers khusus Ramadhan dengan isi makanan berbuka puasa, kurma premium, dan produk Ramadhan lainnya.',
+                shortDescription: 'Hampers Ramadhan dengan isi makanan berbuka',
+                price: 450000,
+                category: 'hampers',
+                subcategory: 'Ramadhan',
+                images: [{ url: '/images/products/hampers-2.jpg', alt: 'Hampers Ramadhan Special', isPrimary: true }],
+                stock: 40,
+                weight: 1800,
+                tags: ['hampers', 'ramadhan', 'buka puasa', 'kurma'],
+                isActive: true,
+                isFeatured: false,
+                isNew: true,
+                rating: { average: 4.7, count: 65 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Kue Nastar Premium',
+                description: 'Kue nastar dengan isian nanas yang manis dan legit. Tekstur kue yang lembut dan renyah.',
+                shortDescription: 'Kue nastar premium dengan isian nanas manis',
+                price: 89000,
+                category: 'kue',
+                subcategory: 'Kue Kering',
+                images: [{ url: '/images/products/kue-1.jpg', alt: 'Kue Nastar Premium', isPrimary: true }],
+                stock: 100,
+                weight: 500,
+                tags: ['nastar', 'kue kering', 'lebaran', 'premium'],
+                isActive: true,
+                isFeatured: true,
+                rating: { average: 4.7, count: 150 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Kue Kastengel Keju',
+                description: 'Kue kastengel dengan taburan keju yang melimpah. Renyah dan gurih, cocok untuk teman minum teh atau kopi.',
+                shortDescription: 'Kue kastengel keju yang renyah dan gurih',
+                price: 75000,
+                category: 'kue',
+                subcategory: 'Kue Kering',
+                images: [{ url: '/images/products/kue-2.jpg', alt: 'Kue Kastengel Keju', isPrimary: true }],
+                stock: 80,
+                weight: 400,
+                tags: ['kastengel', 'keju', 'kue kering', 'renyah'],
+                isActive: true,
+                rating: { average: 4.6, count: 110 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Paket Ramadhan Lengkap',
+                description: 'Paket lengkap untuk kebutuhan Ramadhan. Berisi kurma premium, sirup, makanan berbuka, dan produk Ramadhan lainnya.',
+                shortDescription: 'Paket lengkap kebutuhan Ramadhan',
+                price: 1299000,
+                category: 'ramadhan-lebaran',
+                subcategory: 'Paket Ramadhan',
+                images: [{ url: '/images/products/ramadhan-1.jpg', alt: 'Paket Ramadhan Lengkap', isPrimary: true }],
+                stock: 20,
+                weight: 3000,
+                tags: ['ramadhan', 'paket', 'kurma', 'buka puasa'],
+                isActive: true,
+                isFeatured: true,
+                isNew: true,
+                rating: { average: 4.9, count: 45 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Paket Lebaran Spesial',
+                description: 'Paket spesial untuk hari raya. Berisi aneka kue kering, makanan ringan, dan produk lebaran lainnya.',
+                shortDescription: 'Paket spesial untuk hari raya lebaran',
+                price: 899000,
+                originalPrice: 1099000,
+                category: 'ramadhan-lebaran',
+                subcategory: 'Paket Lebaran',
+                images: [{ url: '/images/products/ramadhan-2.jpg', alt: 'Paket Lebaran Spesial', isPrimary: true }],
+                stock: 35,
+                weight: 2500,
+                tags: ['lebaran', 'paket', 'kue kering', 'spesial'],
+                isActive: true,
+                isFeatured: true,
+                isNew: true,
+                isOnSale: true,
+                discountPercentage: 18,
+                rating: { average: 4.8, count: 75 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Kerudung Instan Premium',
+                description: 'Kerudung instan dengan bahan yang adem dan tidak mudah kusut. Desain modern dan praktis.',
+                shortDescription: 'Kerudung instan premium yang adem dan praktis',
+                price: 125000,
+                originalPrice: 150000,
+                category: 'aksesoris',
+                subcategory: 'Kerudung',
+                images: [{ url: '/images/products/aksesoris-1.jpg', alt: 'Kerudung Instan Premium', isPrimary: true }],
+                stock: 60,
+                weight: 100,
+                tags: ['kerudung', 'instan', 'premium', 'adem'],
+                isActive: true,
+                isNew: true,
+                isOnSale: true,
+                discountPercentage: 17,
+                rating: { average: 4.5, count: 90 },
+                createdBy: adminUser._id
+            },
+            {
+                name: 'Tas Muslimah Elegan',
+                description: 'Tas muslimah dengan desain elegan dan modern. Bahan berkualitas dengan jahitan yang rapi.',
+                shortDescription: 'Tas muslimah elegan dengan desain modern',
+                price: 350000,
+                originalPrice: 450000,
+                category: 'aksesoris',
+                subcategory: 'Tas',
+                images: [{ url: '/images/products/aksesoris-2.jpg', alt: 'Tas Muslimah Elegan', isPrimary: true }],
+                stock: 25,
+                weight: 800,
+                tags: ['tas', 'muslimah', 'elegan', 'modern'],
+                isActive: true,
+                isFeatured: true,
+                isOnSale: true,
+                discountPercentage: 22,
+                rating: { average: 4.6, count: 55 },
+                createdBy: adminUser._id
+            }
+        ];
+
+        // Delete existing products
+        const deleteResult = await Product.deleteMany({});
+
+        // Insert sample products
+        const products = await Product.insertMany(sampleProducts);
+
+        res.json({
+            success: true,
+            message: `Database berhasil di-seed! ${products.length} produk telah ditambahkan.`,
+            deletedCount: deleteResult.deletedCount,
+            insertedCount: products.length
+        });
+    } catch (error) {
+        console.error('Error in seed route:', error);
+        res.json({
+            success: false,
+            message: 'Terjadi kesalahan: ' + error.message
+        });
+    }
+});
+
+// Clear Products Route
+router.post('/database/clear-products', requireAdmin, async (req, res) => {
+    try {
+        const Product = require('../models/Product');
+        const result = await Product.deleteMany({});
+        
+        res.json({
+            success: true,
+            message: `Berhasil menghapus ${result.deletedCount} produk`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        console.error('Error clearing products:', error);
+        res.json({
+            success: false,
+            message: 'Gagal menghapus produk: ' + error.message
         });
     }
 });

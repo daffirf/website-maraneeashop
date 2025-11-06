@@ -41,6 +41,16 @@ router.get('/register', requireGuest, (req, res) => {
 // Login process
 router.post('/login', requireGuest, async (req, res) => {
     try {
+        const mongoose = require('mongoose');
+        
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ 
+                success: false, 
+                message: 'Database tidak terhubung. Pastikan MongoDB sudah dikonfigurasi dengan benar.' 
+            });
+        }
+
         const { email, password, remember } = req.body;
 
         // Validation
@@ -86,16 +96,28 @@ router.post('/login', requireGuest, async (req, res) => {
             req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
         }
 
+        // Determine redirect based on role
+        let redirectUrl = req.session.returnTo || '/';
+        if (user.role === 'admin') {
+            redirectUrl = '/admin';
+        }
+
         res.json({ 
             success: true, 
             message: 'Login berhasil!',
-            redirect: req.session.returnTo || '/'
+            redirect: redirectUrl
         });
     } catch (error) {
         console.error('Login error:', error);
+        
+        let errorMessage = 'Terjadi kesalahan saat login. Silakan coba lagi.';
+        if (error.name === 'MongoNetworkError' || error.message.includes('buffering timed out')) {
+            errorMessage = 'Database tidak terhubung. Pastikan MongoDB sudah berjalan.';
+        }
+        
         res.json({ 
             success: false, 
-            message: 'Terjadi kesalahan saat login. Silakan coba lagi.' 
+            message: errorMessage 
         });
     }
 });

@@ -65,6 +65,14 @@
                         <i class="fas fa-sync-alt mr-2"></i>
                         Refresh
                     </button>
+                    <button onclick="seedDatabase()" class="btn-success" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer;">
+                        <i class="fas fa-seedling mr-2"></i>
+                        Seed Database
+                    </button>
+                    <button onclick="clearProducts()" class="btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer;">
+                        <i class="fas fa-trash mr-2"></i>
+                        Hapus Semua Produk
+                    </button>
                     <button onclick="exportDatabase()" class="btn-primary">
                         <i class="fas fa-download mr-2"></i>
                         Export Data
@@ -505,6 +513,76 @@ async function exportDatabase() {
     } catch (error) {
         console.error('Error exporting database:', error);
         showNotification('Terjadi kesalahan saat export database', 'error');
+    }
+}
+
+// Seed Database Function
+async function seedDatabase() {
+    if (!confirm('Apakah Anda yakin ingin mengisi database dengan data sample? Data produk yang sudah ada akan dihapus dan diganti dengan data sample.')) {
+        return;
+    }
+
+    try {
+        showNotification('Sedang mengisi database...', 'info');
+        
+        const response = await fetch('/admin/database/seed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message, 'success');
+            // Refresh page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error seeding database:', error);
+        showNotification('Terjadi kesalahan saat mengisi database', 'error');
+    }
+}
+
+// Clear Products Function
+async function clearProducts() {
+    if (!confirm('PERINGATAN: Apakah Anda yakin ingin menghapus SEMUA produk? Tindakan ini tidak dapat dibatalkan!')) {
+        return;
+    }
+
+    if (!confirm('Anda yakin 100%? Semua produk akan dihapus permanen!')) {
+        return;
+    }
+
+    try {
+        showNotification('Sedang menghapus produk...', 'info');
+        
+        const response = await fetch('/admin/database/clear-products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message, 'success');
+            // Refresh page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error clearing products:', error);
+        showNotification('Terjadi kesalahan saat menghapus produk', 'error');
     }
 }
 

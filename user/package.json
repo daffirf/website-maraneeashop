@@ -7,7 +7,10 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "npm run build:css",
-    "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/style.css --watch"
+    "build:css": "tailwindcss -i ./src/css/input.css -o ./public/css/style.css --watch",
+    "create-admin": "node scripts/create-admin.js",
+    "seed": "node scripts/seed-database.js",
+    "test-db": "node scripts/test-mongodb-connection.js"
   },
   "keywords": [
     "ecommerce",

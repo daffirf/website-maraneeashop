@@ -57,15 +57,62 @@ app.use((req, res, next) => {
 });
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/maraneea-shop', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ Database connected successfully'))
-.catch(err => {
-  console.error('❌ Database connection error:', err);
-  console.log('⚠️  Running without database - some features may not work');
-});
+const connectDB = async () => {
+  try {
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/maraneea-shop';
+    
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000, // 10 seconds
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+    });
+    
+    console.log('✅ Database connected successfully');
+    
+    // Handle connection events
+    mongoose.connection.on('error', (err) => {
+      console.error('❌ MongoDB connection error:', err.message);
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.warn('⚠️  MongoDB disconnected. Attempting to reconnect...');
+    });
+    
+    mongoose.connection.on('reconnected', () => {
+      console.log('✅ MongoDB reconnected successfully');
+    });
+    
+  } catch (err) {
+    console.error('❌ Database connection error:', err.message);
+    
+    // Provide helpful error messages
+    if (err.message.includes('authentication failed') || err.message.includes('bad auth')) {
+      console.error('\n🔧 SOLUSI:');
+      console.error('   1. Cek username dan password di connection string');
+      console.error('   2. Pastikan user sudah dibuat di MongoDB Atlas');
+      console.error('   3. Pastikan role user adalah "Atlas admin"');
+      console.error('   4. Update file .env dengan connection string yang benar\n');
+    } else if (err.message.includes('timeout') || err.message.includes('buffering')) {
+      console.error('\n🔧 SOLUSI:');
+      console.error('   1. Pastikan IP sudah di-whitelist di MongoDB Atlas');
+      console.error('   2. Cek koneksi internet Anda');
+      console.error('   3. Pastikan cluster MongoDB Atlas sudah aktif\n');
+    } else if (err.message.includes('ENOTFOUND') || err.message.includes('getaddrinfo')) {
+      console.error('\n🔧 SOLUSI:');
+      console.error('   1. Cek connection string di file .env');
+      console.error('   2. Pastikan cluster name benar');
+      console.error('   3. Cek koneksi internet Anda\n');
+    }
+    
+    console.log('⚠️  Running without database - some features may not work');
+    console.log('💡 Untuk memperbaiki, ikuti panduan di: user/MONGODB-ATLAS-SETUP.md\n');
+  }
+};
+
+// Connect to database
+connectDB();
 
 // View engine
 app.set('view engine', 'ejs');
@@ -79,6 +126,8 @@ app.use('/cart', require('./routes/cart'));
 app.use('/orders', require('./routes/orders'));
 app.use('/profile', require('./routes/profile'));
 app.use('/marketplace', require('./routes/marketplace'));
+// Setup route untuk membuat admin (HAPUS setelah admin dibuat!)
+app.use('/setup', require('./routes/setup'));
 app.use('/admin', require('./routes/admin'));
 app.use('/api', require('./routes/api'));
 

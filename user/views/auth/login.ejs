@@ -67,9 +67,10 @@
 
                 <!-- Submit Button -->
                 <button type="submit" 
+                        id="loginButton"
                         class="w-full btn-primary text-lg py-3">
                     <i class="fas fa-sign-in-alt mr-2"></i>
-                    Masuk
+                    <span id="loginButtonText">Masuk</span>
                 </button>
             </form>
 
@@ -137,6 +138,17 @@ function togglePassword(inputId) {
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    const loginButton = document.getElementById('loginButton');
+    const loginButtonText = document.getElementById('loginButtonText');
+    const loginIcon = loginButton.querySelector('i');
+    
+    // Disable button and show loading
+    loginButton.disabled = true;
+    loginButtonText.textContent = 'Memproses...';
+    if (loginIcon) {
+        loginIcon.className = 'fas fa-spinner fa-spin mr-2';
+    }
+    
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
     
@@ -149,19 +161,46 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             body: JSON.stringify(data)
         });
         
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
         
         if (result.success) {
             showNotification(result.message, 'success');
             setTimeout(() => {
-                window.location.href = result.redirect;
+                window.location.href = result.redirect || '/';
             }, 1000);
         } else {
-            showNotification(result.message, 'error');
+            // Re-enable button on error
+            loginButton.disabled = false;
+            loginButtonText.textContent = 'Masuk';
+            if (loginIcon) {
+                loginIcon.className = 'fas fa-sign-in-alt mr-2';
+            }
+            showNotification(result.message || 'Login gagal. Silakan coba lagi.', 'error');
         }
     } catch (error) {
         console.error('Login error:', error);
-        showNotification('Terjadi kesalahan. Silakan coba lagi.', 'error');
+        
+        // Re-enable button on error
+        loginButton.disabled = false;
+        loginButtonText.textContent = 'Masuk';
+        if (loginIcon) {
+            loginIcon.className = 'fas fa-sign-in-alt mr-2';
+        }
+        
+        // Show specific error message
+        let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Tidak dapat terhubung ke server. Pastikan server sudah berjalan.';
+        } else if (error.message.includes('HTTP error')) {
+            errorMessage = 'Server error. Silakan coba lagi nanti.';
+        }
+        
+        showNotification(errorMessage, 'error');
     }
 });
 
