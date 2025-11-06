@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 
 // Products listing page
@@ -68,37 +69,85 @@ router.get('/', async (req, res) => {
                 sortOptions.createdAt = -1;
         }
 
+        // Check if mongoose is connected
+        if (mongoose.connection.readyState !== 1) {
+            // Return empty result if database not connected
+            return res.render('products/index', {
+                title: 'Semua Produk - Maraneea Shop',
+                description: 'Temukan koleksi produk terbaik di Maraneea Shop',
+                currentPage: 'products',
+                user: req.session.userId ? req.user : null,
+                products: [],
+                categories: [],
+                subcategories: [],
+                priceRange: { min: 0, max: 1000000 },
+                filters: {
+                    category,
+                    subcategory,
+                    search,
+                    minPrice,
+                    maxPrice,
+                    sort
+                },
+                categoryDisplayName: category ? (category.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')) : '',
+                viewMode: req.query.viewMode || 'grid',
+                pagination: {
+                    currentPage: 1,
+                    totalPages: 0,
+                    hasNext: false,
+                    hasPrev: false,
+                    nextPage: null,
+                    prevPage: null,
+                    totalProducts: 0
+                }
+            });
+        }
+
         const products = await Product.find(query)
             .sort(sortOptions)
             .skip(skip)
             .limit(parseInt(limit))
-            .populate('createdBy', 'name');
+            .populate('createdBy', 'name')
+            .lean();
 
         const totalProducts = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / limit);
 
         // Get categories for filter
-        const categories = await Product.distinct('category', { isActive: true });
+        const categories = await Product.distinct('category', { isActive: true }).catch(() => []);
         const subcategories = await Product.distinct('subcategory', { 
             isActive: true,
             subcategory: { $exists: true, $ne: '' }
-        });
+        }).catch(() => []);
 
         // Get price range
-        const priceRange = await Product.aggregate([
+        const priceRangeResult = await Product.aggregate([
             { $match: { isActive: true } },
             { $group: { _id: null, min: { $min: '$price' }, max: { $max: '$price' } } }
-        ]);
+        ]).catch(() => []);
+        
+        const priceRange = priceRangeResult[0] || { min: 0, max: 1000000 };
 
+        // Format category name for display
+        const categoryNames = {
+            'baju-muslimah': 'Baju Muslimah',
+            'hampers': 'Hampers',
+            'kue': 'Kue',
+            'ramadhan-lebaran': 'Ramadhan & Lebaran',
+            'aksesoris': 'Aksesoris',
+            'lainnya': 'Lainnya'
+        };
+        const categoryDisplayName = category ? (categoryNames[category] || category.replace('-', ' ')) : '';
+        
         res.render('products/index', {
-            title: `Produk ${category ? `- ${category}` : ''} - Maraneea Shop`,
-            description: `Temukan koleksi produk terbaik di Maraneea Shop${category ? ` kategori ${category}` : ''}`,
+            title: category ? `${categoryDisplayName} - Maraneea Shop` : 'Semua Produk - Maraneea Shop',
+            description: category ? `Temukan koleksi ${categoryDisplayName.toLowerCase()} terbaik di Maraneea Shop. Kualitas premium dengan harga terjangkau.` : 'Temukan koleksi produk terbaik di Maraneea Shop',
             currentPage: 'products',
             user: req.session.userId ? req.user : null,
             products,
             categories,
             subcategories,
-            priceRange: priceRange[0] || { min: 0, max: 1000000 },
+            priceRange: priceRange,
             filters: {
                 category,
                 subcategory,
@@ -107,6 +156,8 @@ router.get('/', async (req, res) => {
                 maxPrice,
                 sort
             },
+            categoryDisplayName,
+            viewMode: req.query.viewMode || 'grid',
             pagination: {
                 currentPage: parseInt(page),
                 totalPages,
@@ -119,9 +170,19 @@ router.get('/', async (req, res) => {
         });
     } catch (error) {
         console.error('Error loading products:', error);
+        console.error('Error stack:', error.stack);
+        
+        // If database connection error, show friendly message
+        if (error.message && error.message.includes('connection')) {
+            return res.status(500).render('error', {
+                title: 'Error - Maraneea Shop',
+                error: 'Database tidak terhubung. Silakan pastikan MongoDB sedang berjalan.'
+            });
+        }
+        
         res.status(500).render('error', {
             title: 'Error - Maraneea Shop',
-            error: 'Terjadi kesalahan saat memuat produk'
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Terjadi kesalahan saat memuat produk'
         });
     }
 });
