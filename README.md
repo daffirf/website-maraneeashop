@@ -291,11 +291,13 @@ BUKALAPAK_API_KEY=your-bukalapak-api-key
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## 📞 Support
+## 📞 Kontak & Sosial Media
 
-- Email: support@maraneeashop.com
-- WhatsApp: +62 812 3456 7890
-- Instagram: @maraneeashop
+- **Email**: maraneeashop@gmail.com
+- **WhatsApp**: 08111049317
+- **Instagram**: [@maraneea.shop](https://instagram.com/maraneea.shop)
+- **Facebook**: [Maraneea Shop](https://facebook.com/maraneea.shop)
+- **TikTok**: [@maraneea.shop](https://tiktok.com/@maraneea.shop)
 
 ## 🙏 Acknowledgments
 
